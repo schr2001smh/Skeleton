@@ -1,5 +1,6 @@
 package bgu.spl.mics.application.services;
 
+import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.MicroService;
 
 /**
