@@ -14,6 +14,8 @@ public class MessageBusImpl implements MessageBus {
 	private HashMap<Class, List<MicroService>> eventMap;
 	private HashMap<Class, List<MicroService>> broadcastMap;
 	private HashMap<MicroService, List<Message>> microserviceMap;
+	private int roundRobinCounter=0;
+	private int counter=0;
 	private static class SingletonHolder {
 		private static final MessageBusImpl instance = new MessageBusImpl();
 	}
@@ -50,7 +52,7 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void sendBroadcast(Broadcast b) {
 		broadcastMap.get(b.getClass()).forEach(m -> {
-			//m.addMessage(b);
+			microserviceMap.get(m).add(b);
 		});
 
 	}
@@ -58,10 +60,18 @@ public class MessageBusImpl implements MessageBus {
 	
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-		// todo round robin
-		eventMap.get(e.getClass()).forEach(m -> {
-			//m.addMessage(e);
-		});
+		counter=0;
+		if (roundRobinCounter == eventMap.get(e.getClass()).size())
+			roundRobinCounter = 0;
+		for (MicroService m : eventMap.get(e.getClass())) {
+			if (counter == roundRobinCounter) {
+				microserviceMap.get(m).add(e);
+				roundRobinCounter++;
+				break;
+			} else {
+				counter++;
+			}
+		}
 		return null;
 	}
 
