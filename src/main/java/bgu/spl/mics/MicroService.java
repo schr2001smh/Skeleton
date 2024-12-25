@@ -25,9 +25,10 @@ import java.util.List;
 public abstract class MicroService implements Runnable {
     private boolean terminated = false;
     private final String name;
-
-    private HashMap<Class<? extends Event>, List<Callback>> eventMap;
-
+    private HashMap<Class<?>, List<Callback<?>>> eventMap;
+    private  MessageBusImpl messageBus = MessageBusImpl.getInstance();
+    private HashMap<Event<?>, Future<?>> futureMap;
+                  
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
      *             does not have to be unique)
@@ -58,11 +59,11 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
-        MessageBusImpl messageBus = MessageBusImpl.getInstance();
+        // MessageBusImpl messageBus = MessageBusImpl.getInstance();
         messageBus.subscribeEvent(type, this);
 
         if (!eventMap.containsKey(type))
-            eventMap.put(type, new ArrayList<Callback>());
+            eventMap.put(type, new ArrayList<Callback<?>>());
         eventMap.get(type).add(callback);
     }
 
@@ -87,7 +88,11 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <B extends Broadcast> void subscribeBroadcast(Class<B> type, Callback<B> callback) {
-        //TODO: implement this.
+        // MessageBusImpl messageBus = MessageBusImpl.getInstance();
+        messageBus.subscribeBroadcast(type, this);
+        if (!eventMap.containsKey(type))
+            eventMap.put(type, new ArrayList<Callback<?>>());
+        eventMap.get(type).add(callback);
     }
 
     /**
@@ -103,8 +108,10 @@ public abstract class MicroService implements Runnable {
      * 	       			null in case no micro-service has subscribed to {@code e.getClass()}.
      */
     protected final <T> Future<T> sendEvent(Event<T> e) {
-        //TODO: implement this.
-        return null; //TODO: delete this line :)
+        Future<T> t=messageBus.sendEvent(e);
+        if (!futureMap.containsKey(e))
+            futureMap.put(e, t);
+        return t; 
     }
 
     /**
@@ -114,7 +121,7 @@ public abstract class MicroService implements Runnable {
      * @param b The broadcast message to send
      */
     protected final void sendBroadcast(Broadcast b) {
-        //TODO: implement this.
+        messageBus.sendBroadcast(b);
     }
 
     /**
@@ -128,13 +135,18 @@ public abstract class MicroService implements Runnable {
      *               {@code e}.
      */
     protected final <T> void complete(Event<T> e, T result) {
-        //TODO: implement this.
+        messageBus.complete(e, result);
+        if (terminated) {
+            messageBus.unregister(this);
+        }
     }
 
     /**
      * this method is called once when the event loop starts.
      */
-    protected abstract void initialize();
+    protected abstract void initialize();{
+        messageBus.register(this);
+    }
 
     /**
      * Signals the event loop that it must terminate after handling the current
@@ -160,7 +172,15 @@ public abstract class MicroService implements Runnable {
     public final void run() {
         initialize();
         while (!terminated) {
-            System.out.println("NOT IMPLEMENTED!!!"); //TODO: you should delete this line :)
+            try {
+                Message m = messageBus.awaitMessage(this);
+                if (m != null) {
+                    //Callback<?> callback = eventMap.get(m.getClass()).get(0);
+                   // callback.call(m);
+                }
+            } catch (InterruptedException e) {
+               // e.printStackTrace();
+            }
         }
     }
 

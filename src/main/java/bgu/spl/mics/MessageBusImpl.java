@@ -1,5 +1,4 @@
 package bgu.spl.mics;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
@@ -11,8 +10,8 @@ import java.util.ArrayList;
  * All other methods and members you add the class must be private.
  */
 public class MessageBusImpl implements MessageBus {
-	private HashMap<Class, List<MicroService>> eventMap;
-	private HashMap<Class, List<MicroService>> broadcastMap;
+	private HashMap<Class<? extends Event<?>>, List<MicroService>> eventMap;
+	private HashMap<Class<? extends Broadcast>, List<MicroService>> broadcastMap;
 	private HashMap<MicroService, List<Message>> microserviceMap;
 	private int roundRobinCounter=0;
 	private int counter=0;

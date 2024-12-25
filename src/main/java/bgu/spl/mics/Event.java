@@ -1,3 +1,5 @@
+
+
 package bgu.spl.mics;
 
 /**
@@ -8,5 +10,5 @@ package bgu.spl.mics;
  * Round-Robin fashion.
  */
 public interface Event<T> extends Message {
-
+    
 }

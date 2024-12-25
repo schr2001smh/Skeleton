@@ -1,5 +1,4 @@
 package bgu.spl.mics;
-
 import java.util.concurrent.TimeUnit;
 import java.lang.Thread;
 /**
@@ -13,13 +12,16 @@ import java.lang.Thread;
 public class Future<T> {
 	private T result;
 	private boolean isDone;
+     
+
 	
 	/**
 	 * This should be the the only public constructor in this class.
 	 */
-	public Future() {
+     public Future() {
 		result = null;
 		isDone = false;
+          
 	}
 	
 	/**
