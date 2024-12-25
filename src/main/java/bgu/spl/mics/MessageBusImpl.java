@@ -13,16 +13,18 @@ import java.util.ArrayList;
 public class MessageBusImpl implements MessageBus {
 	private HashMap<Class, List<MicroService>> eventMap;
 	private HashMap<Class, List<MicroService>> broadcastMap;
-	static MessageBusImpl instance = null;
+	private HashMap<MicroService, List<Message>> microserviceMap;
+	private static class SingletonHolder {
+		private static final MessageBusImpl instance = new MessageBusImpl();
+	}
 
 	private MessageBusImpl() {
 		eventMap = new HashMap<>();
+		broadcastMap= new HashMap<>();
 	}
 
 	public static MessageBusImpl getInstance() {
-		if (instance == null)
-			instance = new MessageBusImpl();
-		return instance;
+		return SingletonHolder.instance;
 	}
 	
 	@Override
@@ -48,7 +50,7 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public void sendBroadcast(Broadcast b) {
 		broadcastMap.get(b.getClass()).forEach(m -> {
-			m.subscribeBroadcast(b.getClass();
+			//m.addMessage(b);
 		});
 
 	}
@@ -56,19 +58,28 @@ public class MessageBusImpl implements MessageBus {
 	
 	@Override
 	public <T> Future<T> sendEvent(Event<T> e) {
-		// TODO Auto-generated method stub
+		// todo round robin
+		eventMap.get(e.getClass()).forEach(m -> {
+			//m.addMessage(e);
+		});
 		return null;
 	}
 
 	@Override
 	public void register(MicroService m) {
-		// TODO Auto-generated method stub
-
+		microserviceMap.put(m, new ArrayList<Message>());
 	}
 
 	@Override
 	public void unregister(MicroService m) {
-		// TODO Auto-generated method stub
+		// need to spread the list to other microservices
+		eventMap.values().forEach(l -> l.remove(m));
+		broadcastMap.values().forEach(l -> l.remove(m));
+		microserviceMap.get(m).forEach(msg -> {
+			if (msg instanceof Event)
+			sendEvent((Event<?>) msg);
+		});
+		microserviceMap.remove(m);
 
 	}
 
