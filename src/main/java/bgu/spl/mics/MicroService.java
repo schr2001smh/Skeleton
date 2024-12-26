@@ -25,9 +25,9 @@ import java.util.List;
 public abstract class MicroService implements Runnable {
     private boolean terminated = false;
     private final String name;
-    private HashMap<Class<?>, List<Callback<?>>> eventMap;
+    private HashMap<Class<?>, List<Callback<?>>> eventMap=new HashMap<>();
     private  MessageBusImpl messageBus = MessageBusImpl.getInstance();
-    private HashMap<Event<?>, Future<?>> futureMap;
+    private HashMap<Event<?>, Future<?>> futureMap= new HashMap<>();
                   
     /**
      * @param name the micro-service name (used mainly for debugging purposes -
@@ -59,9 +59,8 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
-        // MessageBusImpl messageBus = MessageBusImpl.getInstance();
+        System.err.println("thread subbing to event!");
         messageBus.subscribeEvent(type, this);
-
         if (!eventMap.containsKey(type))
             eventMap.put(type, new ArrayList<Callback<?>>());
         eventMap.get(type).add(callback);
@@ -171,15 +170,16 @@ public abstract class MicroService implements Runnable {
     @Override
     public final void run() {
         initialize();
+        System.err.println("thread is initialized!!!!!!!!!"+ name);
         while (!terminated) {
             try {
                 Message m = messageBus.awaitMessage(this);
                 if (m != null) {
-                    //Callback<?> callback = eventMap.get(m.getClass()).get(0);
-                   // callback.call(m);
+                    Callback<Message> callback = (Callback<Message>) eventMap.get(m.getClass()).get(0);
+                    callback.call(m);
                 }
             } catch (InterruptedException e) {
-               // e.printStackTrace();
+                e.printStackTrace();
             }
         }
     }

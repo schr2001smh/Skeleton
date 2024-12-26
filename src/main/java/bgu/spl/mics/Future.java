@@ -40,7 +40,7 @@ public class Future<T> {
 	/**
      * Resolves the result of this Future object.
      */
-	public void resolve (T result) {
+	public void resolve(T result) {
 		this.result = result;
 		isDone = true;
 		// notifyAll();
@@ -68,13 +68,15 @@ public class Future<T> {
 		long timeoutMillis = unit.toMillis(timeout);
         long endTime = System.currentTimeMillis() + timeoutMillis;
 
-        while (!isDone && System.currentTimeMillis() < endTime) {
-             try {
-                 wait(timeoutMillis);
-             } catch (InterruptedException e) {
-                 Thread.currentThread().interrupt();
-                 return result;
-             }
+        synchronized (this) {
+            while (!isDone && System.currentTimeMillis() < endTime) {
+                try {
+                    wait(timeoutMillis);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return result;
+                }
+            }
         }
 		return isDone ? result : null;
 	}
