@@ -7,7 +7,7 @@ import java.util.List;
  * Used by the LiDAR system to store and process point cloud data for tracked objects.
  */
 public class StampedCloudPoints {
-    private String id;
-    private int time;
-    private List<List<Double>> cloudPoints;
+    public String id;
+    public int time;
+    public List<List<Double>> cloudPoints;
 }

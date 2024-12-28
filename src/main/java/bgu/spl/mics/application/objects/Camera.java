@@ -5,10 +5,8 @@ package bgu.spl.mics.application.objects;
  * Responsible for detecting objects in the environment.
  */
 public class Camera {
-    private int id;
-    private int frequency;
-    private STATUS status;
-    private StampedDetectedObjects detectedObjectsList;
-
-    
+    public int id;
+    public int frequency;
+    public STATUS status;
+    public StampedDetectedObjects detectedObjectsList;
 }

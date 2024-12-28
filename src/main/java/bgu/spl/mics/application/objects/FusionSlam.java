@@ -7,10 +7,10 @@ import java.util.List;
  * Implements the Singleton pattern to ensure a single instance of FusionSlam exists.
  */
 public class FusionSlam {
-    private LandMark[] landmarks;
-    private List<Pose> poses;
+    public LandMark[] landmarks;
+    public List<Pose> poses;
     // Singleton instance holder
-    private static class FusionSlamHolder {
+    public static class FusionSlamHolder {
         // TODO: Implement singleton instance logic.
     }
 }

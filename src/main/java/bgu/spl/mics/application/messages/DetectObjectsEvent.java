@@ -10,7 +10,6 @@ public class DetectObjectsEvent implements Event<StampedDetectedObjects> {
     }
 
     public StampedDetectedObjects getStampedDetectObjectsEvent(){
-        objects.setTime(objects.getTime());
         return objects;
     }   
 }

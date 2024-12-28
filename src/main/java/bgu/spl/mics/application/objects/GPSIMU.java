@@ -7,7 +7,7 @@ import java.util.List;
  * Provides information about the robot's position and movement.
  */
 public class GPSIMU {
-    private int currentTick;
-    private STATUS status;
-    private List<Pose> poses;
+    public int currentTick;
+    public STATUS status;
+    public List<Pose> poses;
 }

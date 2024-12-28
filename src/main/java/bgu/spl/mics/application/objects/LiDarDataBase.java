@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class LiDarDataBase {
 
-    private List<StampedCloudPoints> cloudPoints;
+    public List<StampedCloudPoints> cloudPoints;
     /**
      * Returns the singleton instance of LiDarDataBase.
      *

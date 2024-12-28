@@ -7,7 +7,7 @@ import java.util.List;
  * Landmarks are identified and updated by the FusionSlam service.
  */
 public class LandMark {
-    private String id;
-    private String description;
-    private List<CloudPoint> coordinates;
+    public String id;
+    public String description;
+    public List<CloudPoint> coordinates;
 }
