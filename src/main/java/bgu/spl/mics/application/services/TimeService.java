@@ -1,6 +1,5 @@
 package bgu.spl.mics.application.services;
-import java.util.concurrent.TimeUnit;
-import bgu.spl.mics.MessageBusImpl;
+import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.MicroService;
 
 /**
@@ -10,9 +9,8 @@ import bgu.spl.mics.MicroService;
 public class TimeService extends MicroService {
     private int TickTime;
     private int Duration;
-    private int endtime
-    ;
-    private  MessageBusImpl messageBus = MessageBusImpl.getInstance();
+    private int StartTime = 0;
+
 
     /**
      * Constructor for TimeService.
@@ -24,7 +22,6 @@ public class TimeService extends MicroService {
         super("Change_This_Name");
         this.TickTime = TickTime;
         this.Duration = Duration;
-        this.endtime = Duration+=TickTime;
         
     }
 
@@ -34,15 +31,10 @@ public class TimeService extends MicroService {
      */
     @Override
     protected void initialize() {
-        System.err.println("TimeService started:  "+ TickTime + " " + Duration);
-        while (TickTime <= endtime) {
-            try {
-               messageBus.sendBroadcast(new TickBroadcast(TickTime));
-                TickTime++;
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            
+        System.out.println("TimeService started:  "+ TickTime + " " + Duration);
+        while (StartTime < Duration) {
+             sendBroadcast(new TickBroadcast(TickTime));
+            StartTime=StartTime+TickTime;
         }
         terminate();
     }

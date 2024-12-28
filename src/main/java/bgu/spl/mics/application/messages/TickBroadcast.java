@@ -5,11 +5,11 @@ public class TickBroadcast implements Broadcast {
 
     private int currentTick;
 
-    public TickBroadcast(String senderId) {
+    public TickBroadcast(int currentTick) {
         this.currentTick = 0;
     }
 
-    public int getCurrentTick() {
+    public int getTick() {
         return currentTick;
     }
 
