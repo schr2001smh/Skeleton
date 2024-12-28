@@ -1,5 +1,6 @@
 package bgu.spl.mics;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -10,10 +11,11 @@ import java.util.ArrayList;
  * All other methods and members you add the class must be private.
  */
 public class MessageBusImpl implements MessageBus {
-	private HashMap<Class<? extends Event<?>>, List<MicroService>> eventMap=new HashMap<>();
-	private HashMap<Class<? extends Broadcast>, List<MicroService>> broadcastMap=new HashMap<>();
-	private HashMap<MicroService, List<Message>> microserviceMap= new HashMap<>();
-	private HashMap<Event<?>, Future<?>> futureMap= new HashMap<>();
+	private ConcurrentHashMap<Class<? extends Event<?>>, List<MicroService>> eventMap=new ConcurrentHashMap<>();
+	private ConcurrentHashMap<Class<? extends Broadcast>, List<MicroService>> broadcastMap=new ConcurrentHashMap<>();
+	private ConcurrentHashMap<MicroService, List<Message>> microserviceMap= new ConcurrentHashMap<>();
+	private ConcurrentHashMap<Event<?>, Future<?>> futureMap= new ConcurrentHashMap<>();
+	
 	private int roundRobinCounter=0;
 	private int counter=0;
 	private static class SingletonHolder {
@@ -21,8 +23,8 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	private MessageBusImpl() {
-		eventMap = new HashMap<>();
-		broadcastMap= new HashMap<>();
+		eventMap = new ConcurrentHashMap<>();
+		broadcastMap= new ConcurrentHashMap<>();
 	}
 
 	public static MessageBusImpl getInstance() {
@@ -94,10 +96,6 @@ public class MessageBusImpl implements MessageBus {
 		// need to spread the list to other microservices
 		eventMap.values().forEach(l -> l.remove(m));
 		broadcastMap.values().forEach(l -> l.remove(m));
-		microserviceMap.get(m).forEach(msg -> {
-			if (msg instanceof Event)
-			sendEvent((Event<?>) msg);
-		});
 		microserviceMap.remove(m);
 
 	}
