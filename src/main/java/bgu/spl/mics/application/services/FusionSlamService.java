@@ -1,5 +1,8 @@
 package bgu.spl.mics.application.services;
-
+import bgu.spl.mics.application.messages.CrashedBroadcast;
+import bgu.spl.mics.application.messages.TerminatedBroadcast;
+import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.MicroService;
 
@@ -11,14 +14,17 @@ import bgu.spl.mics.MicroService;
  * transforming and updating the map with new landmarks.
  */
 public class FusionSlamService extends MicroService {
+    int tick;
+    FusionSlam fusionSlam;
+
     /**
      * Constructor for FusionSlamService.
      *
      * @param fusionSlam The FusionSLAM object responsible for managing the global map.
      */
     public FusionSlamService(FusionSlam fusionSlam) {
-        super("Change_This_Name");
-        // TODO Implement this
+        super("fusionslam");
+        this.fusionSlam = fusionSlam;
     }
 
     /**
@@ -28,6 +34,24 @@ public class FusionSlamService extends MicroService {
      */
     @Override
     protected void initialize() {
-        // TODO Implement this
+        System.out.println("FusionSlamService started");
+
+       subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
+          this.tick = brod.getTick();
+       });
+
+       subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
+        System.out.println(getName()+" detected "+brod.getSenderName()+"terminated");
+        terminate();
+       });
+
+       subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast brod) -> {
+        System.out.println(getName() + "  detected  " + brod.getSenderName() + "crashed");
+        terminate();
+     });
+
+     subscribeEvent(TrackedObjectsEvent.class, (TrackedObjectsEvent event) -> {
+        System.out.println("FusionSlamService received TrackedObjectsEvent from ");
+     });
     }
 }

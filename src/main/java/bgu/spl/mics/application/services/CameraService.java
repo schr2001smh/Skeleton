@@ -44,12 +44,14 @@ public class CameraService extends MicroService {
 
        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
         System.out.println(getName()+" detected "+brod.getSenderName()+"terminated");
+        terminate();
        });
 
        subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast brod) -> {
         System.out.println(getName() + "  detected  " + brod.getSenderName() + "crashed");
+        terminate();
      });
 
-     terminate();
+     
     }
 }

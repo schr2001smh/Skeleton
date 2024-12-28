@@ -1,7 +1,13 @@
 package bgu.spl.mics.application.services;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.CrashedBroadcast;
+import bgu.spl.mics.application.messages.DetectObjectsEvent;
+import bgu.spl.mics.application.messages.TerminatedBroadcast;
+import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
-
+import bgu.spl.mics.application.messages.TrackedObjectsEvent; // Ensure this class exists or remove if not needed
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * LiDarService is responsible for processing data from the LiDAR sensor and
@@ -12,15 +18,20 @@ import bgu.spl.mics.application.objects.LiDarWorkerTracker;
  * observations.
  */
 public class LiDarService extends MicroService {
-
+    private LiDarWorkerTracker LiDarWorkerTracker;
+    int tick;
     /**
      * Constructor for LiDarService.
      *
      * @param LiDarWorkerTracker A LiDAR Tracker worker object that this service will use to process data.
      */
     public LiDarService(LiDarWorkerTracker LiDarWorkerTracker) {
-        super("Change_This_Name");
-        // TODO Implement this
+        super("Lidar service");
+        this.LiDarWorkerTracker = LiDarWorkerTracker;
+    }
+
+    public void sendEvent(List<TrackedObjectsEvent> points){
+        sendEvent(points);
     }
 
     /**
@@ -30,6 +41,27 @@ public class LiDarService extends MicroService {
      */
     @Override
     protected void initialize() {
-        // TODO Implement this
+
+       System.out.println("lidarservice started");
+
+       subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
+          this.tick = brod.getTick();
+       });
+
+       subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
+        System.out.println(getName()+" detected "+brod.getSenderName()+"terminated");
+        terminate();
+       });
+
+       subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast brod) -> {
+        System.out.println(getName() + "  detected  " + brod.getSenderName() + "crashed");
+        terminate();
+     });
+    
+     subscribeEvent(DetectObjectsEvent.class, (DetectObjectsEvent e) -> {
+        terminate();//TODO: implement this
+     });
+
+
     }
 }
