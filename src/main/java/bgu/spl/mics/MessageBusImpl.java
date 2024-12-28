@@ -68,6 +68,11 @@ public class MessageBusImpl implements MessageBus {
 	public <T> Future<T> sendEvent(Event<T> e) {
 		counter=0;
 		Future<T> future = new Future<>();
+		if (!eventMap.containsKey(e.getClass())) {
+			future.resolve(null);
+			return future;
+		}
+		
 		if (roundRobinCounter == eventMap.get(e.getClass()).size())
 			roundRobinCounter = 0;
 		for (MicroService m : eventMap.get(e.getClass())) {
