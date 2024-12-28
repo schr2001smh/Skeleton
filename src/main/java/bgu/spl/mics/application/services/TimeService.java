@@ -1,5 +1,6 @@
 package bgu.spl.mics.application.services;
-
+import java.util.concurrent.TimeUnit;
+import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
 
 /**
@@ -7,6 +8,11 @@ import bgu.spl.mics.MicroService;
  * at regular intervals and controlling the simulation's duration.
  */
 public class TimeService extends MicroService {
+    private int TickTime;
+    private int Duration;
+    private int endtime
+    ;
+    private  MessageBusImpl messageBus = MessageBusImpl.getInstance();
 
     /**
      * Constructor for TimeService.
@@ -16,7 +22,10 @@ public class TimeService extends MicroService {
      */
     public TimeService(int TickTime, int Duration) {
         super("Change_This_Name");
-        // TODO Implement this
+        this.TickTime = TickTime;
+        this.Duration = Duration;
+        this.endtime = Duration+=TickTime;
+        
     }
 
     /**
@@ -25,6 +34,16 @@ public class TimeService extends MicroService {
      */
     @Override
     protected void initialize() {
-        // TODO Implement this
+        System.err.println("TimeService started:  "+ TickTime + " " + Duration);
+        while (TickTime <= endtime) {
+            try {
+               messageBus.sendBroadcast(new TickBroadcast(TickTime));
+                TickTime++;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            
+        }
+        terminate();
     }
 }

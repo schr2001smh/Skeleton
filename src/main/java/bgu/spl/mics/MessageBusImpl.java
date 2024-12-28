@@ -1,5 +1,4 @@
 package bgu.spl.mics;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.ArrayList;
