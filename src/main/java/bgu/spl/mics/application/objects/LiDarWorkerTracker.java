@@ -1,5 +1,6 @@
 package bgu.spl.mics.application.objects;
 
+import java.util.ArrayList;
 import java.util.List;
 /**
  * LiDarWorkerTracker is responsible for managing a LiDAR worker.
@@ -11,4 +12,15 @@ public class LiDarWorkerTracker {
     public int frequency;
     public STATUS status;
     public List<TrackedObject> lastTrackedObjects;
+
+    public LiDarWorkerTracker(int id, int frequency) {
+        this.id = id;
+        this.frequency = frequency;
+        this.status = STATUS.UP;
+        this.lastTrackedObjects = new ArrayList<>();
+    }
+
+    public void addTrackedObject(TrackedObject trackedObject) {
+        lastTrackedObjects.add(trackedObject);
+    }
 }

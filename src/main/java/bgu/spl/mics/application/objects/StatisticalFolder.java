@@ -10,4 +10,11 @@ public class StatisticalFolder {
     public int numDetectedObjects;
     public int numTrackedObjects;
     public int numLandmarks;
+
+    public StatisticalFolder() {
+        this.systemRuntime = 0;
+        this.numDetectedObjects = 0;
+        this.numTrackedObjects = 0;
+        this.numLandmarks = 0;
+    }
 }

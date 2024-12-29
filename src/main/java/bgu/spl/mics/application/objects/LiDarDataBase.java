@@ -1,5 +1,11 @@
 package bgu.spl.mics.application.objects;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
+
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -9,6 +15,17 @@ import java.util.List;
 public class LiDarDataBase {
 
     public List<StampedCloudPoints> cloudPoints;
+
+    // Private constructor to prevent instantiation
+    private LiDarDataBase() {
+        // Initialize cloudPoints
+    }
+
+    // Singleton instance holder
+    private static class LiDarDataBaseHolder {
+        private static final LiDarDataBase INSTANCE = new LiDarDataBase();
+    }
+
     /**
      * Returns the singleton instance of LiDarDataBase.
      *
@@ -16,7 +33,13 @@ public class LiDarDataBase {
      * @return The singleton instance of LiDarDataBase.
      */
     public static LiDarDataBase getInstance(String filePath) {
-        // TODO: Implement this
-        return null;
+        LiDarDataBase instance = LiDarDataBaseHolder.INSTANCE;
+        Gson gson = new Gson();
+        try (FileReader reader = new FileReader(filePath)) {
+            instance.cloudPoints = gson.fromJson(reader, List.class);
+        } catch (JsonIOException | JsonSyntaxException | IOException e) {
+            e.printStackTrace();
+        }
+        return instance;
     }
 }

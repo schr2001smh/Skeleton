@@ -9,4 +9,10 @@ public class Camera {
     public int frequency;
     public STATUS status;
     public StampedDetectedObjects detectedObjectsList;
+    
+    public Camera(int id, int frequency) {
+        this.id=id;
+        this.frequency=frequency;
+        this.status= STATUS.UP;
+    }
 }

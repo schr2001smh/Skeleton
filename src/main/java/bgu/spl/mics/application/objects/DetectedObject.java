@@ -7,4 +7,9 @@ package bgu.spl.mics.application.objects;
 public class DetectedObject {
     public String id;
     public String description;
+
+    public DetectedObject(String id, String description) {
+        this.id = id;
+        this.description = description;
+    }
 }

@@ -9,4 +9,11 @@ public class Pose {
     public float y;
     public float yaw;
     public int time;
+
+    public Pose(float x, float y, float yaw, int time) {
+        this.x = x;
+        this.y = y;
+        this.yaw = yaw;
+        this.time = time;
+    }
 }
