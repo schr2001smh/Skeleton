@@ -11,6 +11,7 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import bgu.spl.mics.Configuration;
+import bgu.spl.mics.application.objects.Configuration2;
 import bgu.spl.mics.application.objects.LiDarDataBase;
 import bgu.spl.mics.application.objects.Pose;
 
@@ -49,14 +50,14 @@ public class GurionRockRunner {
      e.printStackTrace();
      }
 
-     
+     Gson g2 = new GsonBuilder().setPrettyPrinting().create();
      try (FileReader reader = new FileReader("example input/configuration_file.json")) {
-        Configuration confi = g.fromJson(reader,Configuration.class);
-        System.out.println(confi);
+        Configuration2 confi = g2.fromJson(reader,Configuration2.class);
+        System.out.println(confi.toString());
      } catch (IOException e) {
         e.printStackTrace();
      }
-
+     
 
      
     //  Gson g = new GsonBuilder().setPrettyPrinting().create();
