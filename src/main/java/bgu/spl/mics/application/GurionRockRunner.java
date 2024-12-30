@@ -1,14 +1,17 @@
 package bgu.spl.mics.application;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
-
-import bgu.spl.mics.Configuration;
-import bgu.spl.mics.PoseData;
-
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
+
+import bgu.spl.mics.Configuration;
+import bgu.spl.mics.application.objects.Pose;
 
 /**
  * The main entry point for the GurionRock Pro Max Ultra Over 9000 simulation.
@@ -18,7 +21,7 @@ import java.io.IOException;
  * </p>
  */
 public class GurionRockRunner {
-
+    
     /**
      * The main method of the simulation.
      * This method sets up the necessary components, parses configuration files,
@@ -31,8 +34,25 @@ public class GurionRockRunner {
             System.err.println("Configuration file path not provided.");
             return;
         }
+        
 
+      Gson g = new GsonBuilder().setPrettyPrinting().create();
+      try (FileReader reader = new FileReader("example_input_2/pose_data.json")) {
+     // Define the type for the list of employees
+     Type employeeListType = new TypeToken<List<Pose>>(){}.getType();
+        // Deserialize JSON to list of employees
+     List<Pose> employeeList = g.fromJson(reader,employeeListType);
+     // Use the employee data
+     for (Pose employee : employeeList) {
+     System.out.println(employee);
+     }
+     } catch (IOException e) {
+     e.printStackTrace();
+     }
+
+    
         String configFilePath = args[0];
+        System.err.println("file not empty");
         Gson gson = new Gson();
         try (FileReader reader = new FileReader(configFilePath)) {
             Configuration config = gson.fromJson(reader, Configuration.class);

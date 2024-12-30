@@ -15,8 +15,23 @@ public class StampedDetectedObjects {
         this.time = time;
         this.detectedObjects = new ArrayList<>();
     } 
-
+    
+    
     public void addDetectedObject(DetectedObject detectedObject) {
         detectedObjects.add(detectedObject);
     }
+    public StampedDetectedObjects(){}; // For serialization
+
+    public void setTime(int time){
+        this.time=time;
+    }
+
+    public int getTime(){
+        return time;
+    }
+    
+    public List<DetectedObject> getDetectedObjects(){
+        return detectedObjects;
+    }
+    
 }

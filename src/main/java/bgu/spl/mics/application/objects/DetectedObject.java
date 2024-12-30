@@ -12,4 +12,21 @@ public class DetectedObject {
         this.id = id;
         this.description = description;
     }
+    public DetectedObject(){}; // For serialization
+
+    public String getId(){
+        return id;
+    }
+    public String getDescription(){
+        return description;
+    }
+    public String toString() {
+        return id + " (" + description + ")";
+    }
+    public  void setDescription(String description){
+        this.description=description;
+    }
+    public void setId(String id){
+        this.id=id;
+    }
 }
