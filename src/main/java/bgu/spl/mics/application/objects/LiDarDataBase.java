@@ -1,12 +1,12 @@
 package bgu.spl.mics.application.objects;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
-
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 
 /**
  * LiDarDataBase is a singleton class responsible for managing LiDAR data.
@@ -42,4 +42,25 @@ public class LiDarDataBase {
         }
         return instance;
     }
+
+    public void setCloudPoints(List<StampedCloudPoints> cloudPoints) {
+        this.cloudPoints = cloudPoints;
+    }
+
+    public List<StampedCloudPoints> getCloudPoints() {
+        return cloudPoints;
+    }
+    
+    public void addCloudPoint(StampedCloudPoints cloudPoint) {
+        cloudPoints.add(cloudPoint);
+    }
+    
+
+    @Override
+    public String toString() {
+        return "LiDarDataBase{" +'\'' +
+                "cloudPoints=" + cloudPoints +
+                '}';
+    }
+
 }

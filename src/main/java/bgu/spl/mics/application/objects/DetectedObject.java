@@ -20,13 +20,20 @@ public class DetectedObject {
     public String getDescription(){
         return description;
     }
-    public String toString() {
-        return id + " (" + description + ")";
-    }
     public  void setDescription(String description){
         this.description=description;
     }
     public void setId(String id){
         this.id=id;
     }
+    @Override
+    public String toString() {
+        return id + '\'' +
+        " (" + description + '\'' +
+         ")";
+    }
 }
+//     {
+//         "id": "Wall_1",
+//         "description": "Wall"
+//     },

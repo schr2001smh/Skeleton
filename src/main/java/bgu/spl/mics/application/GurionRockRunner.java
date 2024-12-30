@@ -11,7 +11,8 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import bgu.spl.mics.Configuration;
-import bgu.spl.mics.application.objects.Pose;
+import bgu.spl.mics.application.objects.LiDarDataBase;
+import bgu.spl.mics.application.objects.StampedCloudPoints;
 
 /**
  * The main entry point for the GurionRock Pro Max Ultra Over 9000 simulation.
@@ -37,19 +38,32 @@ public class GurionRockRunner {
         
 
       Gson g = new GsonBuilder().setPrettyPrinting().create();
-      try (FileReader reader = new FileReader("example_input_2/pose_data.json")) {
+      try (FileReader reader = new FileReader("example_input_2/lidar_data.json")) {
      // Define the type for the list of employees
-     Type employeeListType = new TypeToken<List<Pose>>(){}.getType();
+     Type employeeListType = new TypeToken<List<StampedCloudPoints>>(){}.getType();
         // Deserialize JSON to list of employees
-     List<Pose> employeeList = g.fromJson(reader,employeeListType);
+     List<StampedCloudPoints> employeeList = g.fromJson(reader,employeeListType);
      // Use the employee data
-     for (Pose employee : employeeList) {
+     for (StampedCloudPoints employee : employeeList) {
      System.out.println(employee);
+     LiDarDataBase liDarDataBase=LiDarDataBase.getInstance("example_input_2/lidar_data.json");
+     liDarDataBase.setCloudPoints(employeeList);
+     liDarDataBase.toString();
      }
      } catch (IOException e) {
      e.printStackTrace();
      }
-
+    //  Gson g = new GsonBuilder().setPrettyPrinting().create();
+    //  try (FileReader reader = new FileReader("example_input_2/lidar_data.json")) {
+    // // Define the type for the list of employees
+    // Type employeeListType = new TypeToken<LiDarDataBase>(){}.getType();
+    //    // Deserialize JSON to list of employees
+    //    LiDarDataBase employeeList = g.fromJson(reader,employeeListType);
+    // // Use the employee data
+    // System.out.println(employeeList);
+    // } catch (IOException e) {
+    // e.printStackTrace();
+    // }
     
         String configFilePath = args[0];
         System.err.println("file not empty");
