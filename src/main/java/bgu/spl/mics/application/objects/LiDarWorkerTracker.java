@@ -11,7 +11,7 @@ public class LiDarWorkerTracker {
     public int id;
     public int frequency;
     public STATUS status;
-    public List<TrackedObject> lastTrackedObjects;
+    public List<TrackedObject> lastTrackedObjects= new ArrayList<>();
 
     public LiDarWorkerTracker(int id, int frequency) {
         this.id = id;
@@ -22,5 +22,28 @@ public class LiDarWorkerTracker {
 
     public void addTrackedObject(TrackedObject trackedObject) {
         lastTrackedObjects.add(trackedObject);
+    }
+
+    public LiDarWorkerTracker(){}// For serialization
+    public void setId(int id) {
+        this.id = id;
+    }
+    public void setFrequency(int frequency) {
+        this.frequency = frequency;
+    }
+    public int getId() {
+        return id;
+    }
+    public int getFrequency() {
+        return frequency;
+    }
+    
+    @Override
+    public String toString() {
+        System.out.println("toString() method called for LidarWorkerTracker");
+        return "LidarConfiguration{" +
+               "id=" + id +
+               ", frequency=" + frequency +
+               '}';
     }
 }

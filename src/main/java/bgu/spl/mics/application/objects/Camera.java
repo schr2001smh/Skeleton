@@ -8,7 +8,7 @@ public class Camera {
     public int id;
     public int frequency;
     public STATUS status;
-    public StampedDetectedObjects detectedObjectsList;
+    public StampedDetectedObjects detectedObjectsList = new StampedDetectedObjects();
 
     public Camera(){}; // For serialization
     
@@ -36,7 +36,24 @@ public class Camera {
         this.id=id;
     }
     
+    
+    @Override
     public String toString() {
-        return "Camera " + id + " is " + status + " and has detected the following objects: " + detectedObjectsList;
+        System.out.println("toString() method called for camera");
+        return "Camera{" +
+               "id=" + id +
+               ", frequency=" + frequency +
+               ", camera_key='" + '1' + '\'' +
+               '}';
     }
 }
+// "id": 1,
+// "frequency": 0,
+// "camera_key": "camera1"
+// public String toString() {
+//     return "time: " + time + '\'' +
+//      ", x: " + x + '\''+
+//      ", y: " + y + '\''+
+//      ", yaw: " + yaw
+//     ;
+// }

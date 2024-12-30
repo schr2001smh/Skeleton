@@ -50,6 +50,15 @@ public class GurionRockRunner {
      }
 
      
+     try (FileReader reader = new FileReader("example input/configuration_file.json")) {
+        Configuration confi = g.fromJson(reader,Configuration.class);
+        System.out.println(confi);
+     } catch (IOException e) {
+        e.printStackTrace();
+     }
+
+
+     
     //  Gson g = new GsonBuilder().setPrettyPrinting().create();
     //  try (FileReader reader = new FileReader("example_input_2/lidar_data.json")) {
     // // Define the type for the list of employees

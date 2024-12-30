@@ -17,6 +17,7 @@ public class MessageBusImpl implements MessageBus {
 	
 	private int roundRobinCounter=0;
 	private int counter=0;
+	
 	private static class SingletonHolder {
 		private static final MessageBusImpl instance = new MessageBusImpl();
 	}
