@@ -12,7 +12,7 @@ import com.google.gson.reflect.TypeToken;
 
 import bgu.spl.mics.Configuration;
 import bgu.spl.mics.application.objects.LiDarDataBase;
-import bgu.spl.mics.application.objects.StampedCloudPoints;
+import bgu.spl.mics.application.objects.Pose;
 
 /**
  * The main entry point for the GurionRock Pro Max Ultra Over 9000 simulation.
@@ -35,15 +35,15 @@ public class GurionRockRunner {
             System.err.println("Configuration file path not provided.");
             return;
         }
-        LiDarDataBase liDarDataBase2=LiDarDataBase.getInstance("example_input_2/lidar_data.json");
+
+     LiDarDataBase liDarDataBase2=LiDarDataBase.getInstance("example_input_2/lidar_data.json");
+     
       Gson g = new GsonBuilder().setPrettyPrinting().create();
-      try (FileReader reader = new FileReader("example_input_2/lidar_data.json")) {
-     Type employeeListType = new TypeToken<List<StampedCloudPoints>>(){}.getType();
-     List<StampedCloudPoints> employeeList = g.fromJson(reader,employeeListType);
-     for (StampedCloudPoints employee : employeeList) {
-     System.out.println(employee);
-     LiDarDataBase liDarDataBase=LiDarDataBase.getInstance("example_input_2/lidar_data.json");
-     liDarDataBase.setCloudPoints(employeeList);
+      try (FileReader reader = new FileReader("example_input_2/pose_data.json")) {
+     Type employeeListType = new TypeToken<List<Pose>>(){}.getType();
+     List<Pose> employeeList = g.fromJson(reader,employeeListType);
+     for (Pose employee : employeeList) {
+        System.err.println(employee.toString());
      }
      } catch (IOException e) {
      e.printStackTrace();
