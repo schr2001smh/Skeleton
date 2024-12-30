@@ -35,24 +35,21 @@ public class GurionRockRunner {
             System.err.println("Configuration file path not provided.");
             return;
         }
-        
-
+        LiDarDataBase liDarDataBase2=LiDarDataBase.getInstance("example_input_2/lidar_data.json");
       Gson g = new GsonBuilder().setPrettyPrinting().create();
       try (FileReader reader = new FileReader("example_input_2/lidar_data.json")) {
-     // Define the type for the list of employees
      Type employeeListType = new TypeToken<List<StampedCloudPoints>>(){}.getType();
-        // Deserialize JSON to list of employees
      List<StampedCloudPoints> employeeList = g.fromJson(reader,employeeListType);
-     // Use the employee data
      for (StampedCloudPoints employee : employeeList) {
      System.out.println(employee);
      LiDarDataBase liDarDataBase=LiDarDataBase.getInstance("example_input_2/lidar_data.json");
      liDarDataBase.setCloudPoints(employeeList);
-     liDarDataBase.toString();
      }
      } catch (IOException e) {
      e.printStackTrace();
      }
+
+     
     //  Gson g = new GsonBuilder().setPrettyPrinting().create();
     //  try (FileReader reader = new FileReader("example_input_2/lidar_data.json")) {
     // // Define the type for the list of employees

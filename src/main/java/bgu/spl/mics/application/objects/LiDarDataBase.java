@@ -2,11 +2,12 @@ package bgu.spl.mics.application.objects;
 
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.List;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 /**
  * LiDarDataBase is a singleton class responsible for managing LiDAR data.
@@ -34,12 +35,15 @@ public class LiDarDataBase {
      */
     public static LiDarDataBase getInstance(String filePath) {
         LiDarDataBase instance = LiDarDataBaseHolder.INSTANCE;
-        Gson gson = new Gson();
-        try (FileReader reader = new FileReader(filePath)) {
-            instance.cloudPoints = gson.fromJson(reader, List.class);
-        } catch (JsonIOException | JsonSyntaxException | IOException e) {
-            e.printStackTrace();
-        }
+
+      Gson g = new GsonBuilder().setPrettyPrinting().create();
+      try (FileReader reader = new FileReader(filePath)) {
+     Type employeeListType = new TypeToken<List<StampedCloudPoints>>(){}.getType();
+     instance.cloudPoints = g.fromJson(reader,employeeListType);
+     } catch (IOException e) {
+     e.printStackTrace();
+     }
+
         return instance;
     }
 
