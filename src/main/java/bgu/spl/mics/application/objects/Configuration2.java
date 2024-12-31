@@ -4,29 +4,57 @@ import java.util.List;
 
 import bgu.spl.mics.LiDarWorkers;
 
+ class cameraz{
+    public List<Camera> CamerasConfigurations;
+    public String camera_datas_path;
+    
+    public cameraz(){}; // For serialization
+    public List<Camera> getCamerasConfigurations(){
+        return CamerasConfigurations;
+    }
+
+    public void setCamerasConfigurations(List<Camera> cameras){
+        this.CamerasConfigurations=cameras;
+    }
+
+    public void setcamera_datas_path(String camera_datas_path){
+        this.camera_datas_path=camera_datas_path;
+    }
+    public String getcamera_datas_path(){
+        return camera_datas_path;
+    }   
+}
+
+ class LiDarWorkerz{
+    public List<LiDarWorkers> LidarConfigurations;
+    public String lidars_data_path;
+
+    public LiDarWorkerz(){}; // For serialization
+
+    public void setLidarConfigurations(List<LiDarWorkers> LiDarWorkers){
+        this.LidarConfigurations=LiDarWorkers;
+    }
+    public List<LiDarWorkers> getLidarConfigurations(){
+        return LidarConfigurations;
+    }
+    public String getLidars_data_path(){
+        return lidars_data_path;
+    }
+
+    public void setLidars_data_path(String lidars_data_path){
+        this.lidars_data_path=lidars_data_path;
+    }
+}
+
 public class Configuration2 {
-    public List<Camera> cameras;
-    public List<String> camera_datas_path;
-    public List<LiDarWorkers> LiDarWorkers;
-    public List<String> lidars_data_path;
     public String poseJsonFile;
     public int TickTime;
     public int duration;
     
     public Configuration2(){}; // For serialization
 
-    public List<Camera> getCameras(){
-        return cameras;
-    }
-    public List<LiDarWorkers> getLiDarWorkers(){
-        return LiDarWorkers;
-    }
-    public void setCameras(List<Camera> cameras){
-        this.cameras=cameras;
-    }
-    public void setLiDarWorkers(List<LiDarWorkers> LiDarWorkers){
-        this.LiDarWorkers=LiDarWorkers;
-    }
+
+
 
     @Override
     public String toString() {
