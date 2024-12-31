@@ -23,6 +23,13 @@ import bgu.spl.mics.LiDarWorkers;
     public String getcamera_datas_path(){
         return camera_datas_path;
     }   
+    @Override
+    public String toString() {
+        return "cameras{" + '\'' +
+                "CamerasConfigurations=" + CamerasConfigurations + '\'' +
+                ", camera_datas_path='" + camera_datas_path + '\'' +
+                '}';
+    }
 }
 
  class LiDarWorkerz{
@@ -44,9 +51,18 @@ import bgu.spl.mics.LiDarWorkers;
     public void setLidars_data_path(String lidars_data_path){
         this.lidars_data_path=lidars_data_path;
     }
+    @Override
+    public String toString() {
+        return "LiDarWorkers{" + '\'' +
+                "LidarConfigurations=" + LidarConfigurations + '\'' +
+                ", lidars_data_path='" + lidars_data_path + '\'' +
+                '}';
+    }
 }
 
 public class Configuration2 {
+    public cameraz Cameras;
+    public LiDarWorkerz LiDarWorkers;
     public String poseJsonFile;
     public int TickTime;
     public int duration;
@@ -59,14 +75,12 @@ public class Configuration2 {
     @Override
     public String toString() {
         System.err.println("arrived at config toString");
-        return "Configuration{" +
-               "cameras=" + cameras +
-               ", camera_datas_path='" + camera_datas_path + '\'' +
-               ", LiDarWorkers=" + LiDarWorkers +
-               ", lidars_data_path='" + lidars_data_path + '\'' +
+        return "Configuration{" +'\'' +
+                Cameras + '\'' +
+                LiDarWorkers +'\'' +
                ", poseJsonFile='" + poseJsonFile + '\'' +
-               ", TickTime=" + TickTime +
-               ", duration=" + duration +
+               ", TickTime=" + TickTime +'\'' +
+               ", duration=" + duration +'\'' +
                '}';
     }
 
