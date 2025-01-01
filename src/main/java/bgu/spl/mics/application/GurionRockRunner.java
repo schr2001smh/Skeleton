@@ -3,6 +3,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -11,9 +12,10 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import bgu.spl.mics.Configuration;
-import bgu.spl.mics.application.objects.Configuration2;
+// import bgu.spl.mics.application.objects.Configuration2;
 import bgu.spl.mics.application.objects.LiDarDataBase;
 import bgu.spl.mics.application.objects.Pose;
+import bgu.spl.mics.application.objects.StampedDetectedObjects;
 
 /**
  * The main entry point for the GurionRock Pro Max Ultra Over 9000 simulation.
@@ -37,52 +39,45 @@ public class GurionRockRunner {
             return;
         }
 
-     LiDarDataBase liDarDataBase2=LiDarDataBase.getInstance("example_input_2/lidar_data.json");
+      String folder = args[0].substring(0,args[0].lastIndexOf("\\") + 1);
+        System.err.println(folder);
+     LiDarDataBase liDarDataBase2=LiDarDataBase.getInstance(folder+"lidar_data.json");
+     System.err.println("liDarDataBase2 data have read lidar_data.json!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
      
       Gson g = new GsonBuilder().setPrettyPrinting().create();
-      try (FileReader reader = new FileReader("example_input_2/pose_data.json")) {
+      try (FileReader reader = new FileReader(folder+"pose_data.json")) {
      Type employeeListType = new TypeToken<List<Pose>>(){}.getType();
-     List<Pose> employeeList = g.fromJson(reader,employeeListType);
-     for (Pose employee : employeeList) {
-        System.err.println(employee.toString());
-     }
+     List<Pose> poses = g.fromJson(reader,employeeListType);
+        System.out.println("poses have read pose_data.json!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
      } catch (IOException e) {
      e.printStackTrace();
      }
 
      Gson g2 = new GsonBuilder().setPrettyPrinting().create();
-     try (FileReader reader = new FileReader("example input/configuration_file.json")) {
-        Configuration2 confi = g2.fromJson(reader,Configuration2.class);
-        System.out.println(confi.toString());
+     try (FileReader reader = new FileReader(folder +"configuration_file.json")) {
+        Configuration confi = g2.fromJson(reader,Configuration.class);
+        System.out.println("confi have read configuration_file.json!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
      } catch (IOException e) {
         e.printStackTrace();
      }
-     
 
      
-    //  Gson g = new GsonBuilder().setPrettyPrinting().create();
-    //  try (FileReader reader = new FileReader("example_input_2/lidar_data.json")) {
-    // // Define the type for the list of employees
-    // Type employeeListType = new TypeToken<LiDarDataBase>(){}.getType();
-    //    // Deserialize JSON to list of employees
-    //    LiDarDataBase employeeList = g.fromJson(reader,employeeListType);
-    // // Use the employee data
-    // System.out.println(employeeList);
-    // } catch (IOException e) {
-    // e.printStackTrace();
-    // }
-    
-        String configFilePath = args[0];
-        System.err.println("file not empty");
-        Gson gson = new Gson();
-        try (FileReader reader = new FileReader(configFilePath)) {
-            Configuration config = gson.fromJson(reader, Configuration.class);
-            
-            // TODO: Initialize system components and services using config, cameraData, lidarData, and poseData.
-            // TODO: Start the simulation.
-        } catch (JsonIOException | JsonSyntaxException | IOException e) {
-            e.printStackTrace();
-        }
+     Gson g3 = new GsonBuilder().setPrettyPrinting().create();
+     try (FileReader reader = new FileReader(folder+ "camera_data.json")) {
+         // Define the type to parse the JSON structure
+         Type type = new TypeToken<Map<String, List<StampedDetectedObjects>>>() {}.getType();
+         Map<String, List<StampedDetectedObjects>> cameraData = g3.fromJson(reader, type);
+         // Iterate over all cameras and their data
+         for (Map.Entry<String, List<StampedDetectedObjects>> entry : cameraData.entrySet()) {
+             String cameraName = entry.getKey();
+             List<StampedDetectedObjects> detectedObjects = entry.getValue();
+         }
+         System.out.println("cameraData have read camera_data.json!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+     } catch (IOException e) {
+         e.printStackTrace();
+     }
+
+
     }
 }
 

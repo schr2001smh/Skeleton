@@ -34,4 +34,16 @@ public class StampedDetectedObjects {
         return detectedObjects;
     }
     
+    public void setDetectedObjects(List<DetectedObject> detectedObjects){
+        this.detectedObjects=detectedObjects;
+    }
+
+    @Override
+    public String toString() {
+        return 
+                "time=" + time +
+                ", detectedObjects=" + detectedObjects +
+                '}';
+    }
+    
 }

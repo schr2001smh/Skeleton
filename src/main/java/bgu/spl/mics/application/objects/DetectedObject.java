@@ -28,9 +28,7 @@ public class DetectedObject {
     }
     @Override
     public String toString() {
-        return id + '\'' +
-        " (" + description + '\'' +
-         ")";
+        return "{ID: " + id + ", Description: " + description + "}";
     }
 }
 //     {
