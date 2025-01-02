@@ -1,5 +1,6 @@
 package bgu.spl.mics;
 import java.util.List;
+
 import bgu.spl.mics.application.objects.Camera;
 
  class cameraz{
@@ -67,8 +68,27 @@ public class Configuration {
     
     public Configuration(){}; // For serialization
 
+    public String print_cameras(){
+       return  Cameras.toString();
+    }
 
+    public String print_lidars(){
+        return LiDarWorkers.toString();
+    }
 
+    public List<LiDarWorkers> getLidarConfigurations(){
+        return LiDarWorkers.getLidarConfigurations();
+    }
+
+    public String getLidars_data_path(){
+        return LiDarWorkers.getLidars_data_path();
+    }
+    public String getCamera_datas_path(){
+        return Cameras.getcamera_datas_path();
+    }  
+    public List<Camera> getCamerasConfigurations(){
+        return Cameras.getCamerasConfigurations();
+    }
 
     @Override
     public String toString() {

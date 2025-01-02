@@ -1,11 +1,5 @@
 package bgu.spl.mics.application;
 
-import bgu.spl.mics.MicroService;
-import bgu.spl.mics.application.objects.*;
-import bgu.spl.mics.application.services.*;
-import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
-
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -16,9 +10,33 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
+
 import bgu.spl.mics.Configuration;
-import bgu.spl.mics.LidarConfigurations;
-import bgu.spl.mics.CameraConfigurations;
+import bgu.spl.mics.LiDarWorkers;
+import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.objects.Camera;
+import bgu.spl.mics.application.objects.CloudPoint;
+import bgu.spl.mics.application.objects.DetectedObject;
+import bgu.spl.mics.application.objects.FusionSlam;
+import bgu.spl.mics.application.objects.GPSIMU;
+import bgu.spl.mics.application.objects.LiDarDataBase;
+import bgu.spl.mics.application.objects.LiDarWorkerTracker;
+import bgu.spl.mics.application.objects.Pose;
+import bgu.spl.mics.application.objects.STATUS;
+import bgu.spl.mics.application.objects.StampedCloudPoints;
+import bgu.spl.mics.application.objects.StampedDetectedObjects;
+import bgu.spl.mics.application.services.CameraService;
+import bgu.spl.mics.application.services.FusionSlamService;
+import bgu.spl.mics.application.services.LiDarService;
+import bgu.spl.mics.application.services.PoseService;
+import bgu.spl.mics.application.services.TimeService;
 
 /**
  * The main entry point for the GurionRock Pro Max Ultra Over 9000 simulation.
@@ -60,8 +78,8 @@ public class GurionRockRunner {
 
             // Print the loaded configuration data
             System.out.println("Configuration: " + config);
-            System.out.println("Cameras: " + config.Cameras.toString());
-            System.out.println("Lidar Workers: " + config.LiDarWorkers.toString());
+            System.out.println("Cameras: " + config.print_cameras());
+            System.out.println("Lidar Workers: " + config.print_lidars());
             System.out.println("Pose JSON File: " + config.poseJsonFile);
             System.out.println("Tick Time: " + config.TickTime);
             System.out.println("Duration: " + config.duration);
@@ -71,23 +89,22 @@ public class GurionRockRunner {
             String poseJsonFilePath = getFullJsonFilePath(configFilePath, config.poseJsonFile);
             List<Pose> poses = loadPoseData(poseJsonFilePath);
 
-            String lidarJsonFilePath = getFullJsonFilePath(configFilePath, config.LiDarWorkers.getLidars_data_path());
+            String lidarJsonFilePath = getFullJsonFilePath(configFilePath, config.getLidars_data_path());
             List<StampedCloudPoints> lidarData = loadLidarData(lidarJsonFilePath);
 
 
-            String cameraJsonFilePath = getFullJsonFilePath(configFilePath, config.Cameras.getCamera_datas_path());
+            String cameraJsonFilePath = getFullJsonFilePath(configFilePath, config.getCamera_datas_path());
             List<Camera> cameras = loadCameras(config, cameraJsonFilePath);
 
 
-            System.out.println("SUMMERY:"
+            System.out.println("SUMMARY:"
                     +"\nDuration: " + config.duration + " seconds"
                     +"\nTick Time: " + config.TickTime + " seconds");
             for (Camera camera : cameras) {
                 System.out.println(camera);
             }
-            for (LidarConfigurations lidarConfiguration : config.LiDarWorkers.getLidarConfigurations()) {
-                System.out.println(lidarConfiguration);
-            }
+
+            System.out.println(config);
             System.out.println("******");
 
 
@@ -100,15 +117,15 @@ public class GurionRockRunner {
 
 
             //create lidar database and lidar services
-            LiDarDataBase liDarDataBase = LiDarDataBase.getInstance();
+            LiDarDataBase liDarDataBase = LiDarDataBase.getInstance(lidarJsonFilePath);
             liDarDataBase.setCloudPoints(lidarData);//update lidar data
 
             List<LiDarWorkerTracker> liDarWorkerTrackers = new ArrayList<>();//all lidarWorkers
             List<LiDarService> liDarServices = new ArrayList<>();//all lidarServices
 
-            List<LidarConfigurations> lidarConfigurations = config.LiDarWorkers.getLidarConfigurations();
-            for (LidarConfigurations lidarConfiguration : lidarConfigurations) {
-                LiDarWorkerTracker liDarWorkerTracker = new LiDarWorkerTracker(lidarConfiguration.id, lidarConfiguration.frequency);
+            List<LiDarWorkers> lidarWorkers = config.getLidarConfigurations();
+            for (LiDarWorkers liDarWorker : lidarWorkers) {
+                LiDarWorkerTracker liDarWorkerTracker = new LiDarWorkerTracker(liDarWorker.id, liDarWorker.frequency);
 
                 liDarWorkerTrackers.add(liDarWorkerTracker);
                 liDarServices.add(new LiDarService(liDarWorkerTracker));
@@ -193,7 +210,7 @@ public class GurionRockRunner {
         try {
             // Create a GsonBuilder and register the custom deserializer for CloudPoint
             GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.registerTypeAdapter(CloudPoint.class, new CloudPoint());
+            // gsonBuilder.registerTypeAdapter(CloudPoint.class, new CloudPoint());
             Gson gson = gsonBuilder.create();
 
             FileReader reader = new FileReader(lidarJsonFilePath);
@@ -221,9 +238,7 @@ public class GurionRockRunner {
     private static List<Camera> loadCameras(Configuration config,String cameraJsonFilePath) {
         //pull the camera data from the json file and create a list of cameras from combining the data from the json file and the configuration file
         List<Camera> cameras = new ArrayList<>();
-        for (CameraConfigurations camerasConfigurations1 : config.Cameras.getCamerasConfigurations()) {
-            Camera camera = new Camera(camerasConfigurations1.id, camerasConfigurations1.frequency, STATUS.UP
-                    , loadCameraData(cameraJsonFilePath).get(camerasConfigurations1.camera_key));
+        for (Camera camera : config.getCamerasConfigurations()) {
             cameras.add(camera);
         }
       return cameras;
