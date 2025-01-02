@@ -10,7 +10,7 @@ public class Camera {
     public int id;
     public int frequency;
     public STATUS status;
-    public StampedDetectedObjects detectedObjectsList;
+    public List<StampedDetectedObjects> detectedObjectsList;
     private String camera_key;
 
     public Camera(){}; // For serialization
@@ -24,7 +24,7 @@ public class Camera {
         this.id=id;
         this.frequency=frequency;
         this.status=status;
-        this.detectedObjectsList=detectedObjectsList.get(0);
+        this.detectedObjectsList=detectedObjectsList;
     }
 
     public  STATUS getStatus(){

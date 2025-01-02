@@ -32,7 +32,7 @@ public class MessageBusImpl implements MessageBus {
 	}
 	
 	@Override
-	public <T> void subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
+	public <T> void  subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
 		if (!eventMap.containsKey(type))
 			eventMap.put(type, new ArrayList<MicroService>());
 		eventMap.get(type).add(m);
@@ -57,6 +57,8 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public void sendBroadcast(Broadcast b) {
+		if (!broadcastMap.containsKey(b.getClass()))
+			return;
 		broadcastMap.get(b.getClass()).forEach(m -> {
 			microserviceMap.get(m).add(b);
 		});

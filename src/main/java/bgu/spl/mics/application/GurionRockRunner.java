@@ -82,7 +82,7 @@ public class GurionRockRunner {
             System.out.println("Lidar Workers: " + config.print_lidars());
             System.out.println("Pose JSON File: " + config.poseJsonFile);
             System.out.println("Tick Time: " + config.TickTime);
-            System.out.println("Duration: " + config.duration);
+            System.out.println("Duration: " + config.Duration);
 
 
             //load other jsons and start the simulation
@@ -98,7 +98,7 @@ public class GurionRockRunner {
 
 
             System.out.println("SUMMARY:"
-                    +"\nDuration: " + config.duration + " seconds"
+                    +"\nDuration: " + config.Duration + " seconds"
                     +"\nTick Time: " + config.TickTime + " seconds");
             for (Camera camera : cameras) {
                 System.out.println(camera);
@@ -142,7 +142,7 @@ public class GurionRockRunner {
             FusionSlamService fusionSlamService = new FusionSlamService(fusionSlam);
 
             //create time service
-            TimeService timeService = new TimeService(config.TickTime, config.duration);
+            TimeService timeService = new TimeService(config.TickTime, config.Duration);
 
             //start the program
             List<MicroService> services = new ArrayList<>();
@@ -221,10 +221,10 @@ public class GurionRockRunner {
             List<StampedCloudPoints> lidarData = gson.fromJson(reader, lidarListType);
 
             // Print the loaded LiDAR data
-            System.out.println("\n******LiDAR Data: ");
-            for (StampedCloudPoints stampedCloudPoints : lidarData) {
-                System.out.println(stampedCloudPoints);
-            }
+            // System.out.println("\n******LiDAR Data: ");
+            // for (StampedCloudPoints stampedCloudPoints : lidarData) {
+            //     System.out.println(stampedCloudPoints);
+            // }
             System.out.println("******");
             reader.close();
             return lidarData;
@@ -278,8 +278,6 @@ public class GurionRockRunner {
                     // Add the StampedDetectedObjects to the list
                     stampedDetectedObjectsList.add(new StampedDetectedObjects(time, detectedObjects));
                 }
-
-
 
                 // Add the list to the map with the camera key
                 cameraDataMap.put(cameraKey, stampedDetectedObjectsList);

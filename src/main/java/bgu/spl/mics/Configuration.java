@@ -64,7 +64,7 @@ public class Configuration {
     public LiDarWorkerz LiDarWorkers;
     public String poseJsonFile;
     public int TickTime;
-    public int duration;
+    public int Duration;
     
     public Configuration(){}; // For serialization
 
@@ -94,10 +94,10 @@ public class Configuration {
     public String toString() {
         return "Configuration{" +'\'' +
                 Cameras + '\'' +
-                LiDarWorkers +'\'' +
+                LiDarWorkers.toString() +'\'' +
                ", poseJsonFile='" + poseJsonFile + '\'' +
                ", TickTime=" + TickTime +'\'' +
-               ", duration=" + duration +'\'' +
+               ", Duration=" + Duration +'\'' +
                '}';
     }
 

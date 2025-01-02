@@ -59,7 +59,6 @@ public abstract class MicroService implements Runnable {
      *                 queue.
      */
     protected final <T, E extends Event<T>> void subscribeEvent(Class<E> type, Callback<E> callback) {
-        System.err.println("thread subbing to event!");
         messageBus.subscribeEvent(type, this);
         if (!eventMap.containsKey(type))
             eventMap.put(type, new ArrayList<Callback<?>>());
@@ -170,7 +169,7 @@ public abstract class MicroService implements Runnable {
     @Override
     public final void run() {
         initialize();
-        System.err.println("thread is initialized!!!!!!!!!"+ name);
+        System.err.println("thread is initialized!!!!!!!!!" + name);
         while (!terminated) {
             try {
                 Message m = messageBus.awaitMessage(this);
