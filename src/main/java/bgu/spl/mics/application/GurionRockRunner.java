@@ -1,21 +1,24 @@
 package bgu.spl.mics.application;
+
+import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.objects.*;
+import bgu.spl.mics.application.services.*;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonIOException;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
-
 import bgu.spl.mics.Configuration;
-// import bgu.spl.mics.application.objects.Configuration2;
-import bgu.spl.mics.application.objects.LiDarDataBase;
-import bgu.spl.mics.application.objects.Pose;
-import bgu.spl.mics.application.objects.StampedDetectedObjects;
+import bgu.spl.mics.LidarConfigurations;
+import bgu.spl.mics.CameraConfigurations;
 
 /**
  * The main entry point for the GurionRock Pro Max Ultra Over 9000 simulation.
@@ -25,7 +28,7 @@ import bgu.spl.mics.application.objects.StampedDetectedObjects;
  * </p>
  */
 public class GurionRockRunner {
-    
+
     /**
      * The main method of the simulation.
      * This method sets up the necessary components, parses configuration files,
@@ -34,50 +37,255 @@ public class GurionRockRunner {
      * @param args Command-line arguments. The first argument is expected to be the path to the configuration file.
      */
     public static void main(String[] args) {
-        if (args.length < 1) {
-            System.err.println("Configuration file path not provided.");
+
+        if (args.length == 0) {
+/*
+            System.out.println("Usage: java Main <path_to_configuration_file>");
             return;
+*/
+
+            args = new String[1];
+            args[0] = "example_input_2/configuration_file.json";  // change before submission!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         }
 
-      String folder = args[0].substring(0,args[0].lastIndexOf("\\") + 1);
-        System.err.println(folder);
-     LiDarDataBase liDarDataBase2=LiDarDataBase.getInstance(folder+"lidar_data.json");
-     System.err.println("liDarDataBase2 data have read lidar_data.json!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-     
-      Gson g = new GsonBuilder().setPrettyPrinting().create();
-      try (FileReader reader = new FileReader(folder+"pose_data.json")) {
-     Type employeeListType = new TypeToken<List<Pose>>(){}.getType();
-     List<Pose> poses = g.fromJson(reader,employeeListType);
-        System.out.println("poses have read pose_data.json!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-     } catch (IOException e) {
-     e.printStackTrace();
-     }
+        String configFilePath = args[0];
+        try {
+            Gson gson = new Gson();
+            FileReader reader = new FileReader(configFilePath);
 
-     Gson g2 = new GsonBuilder().setPrettyPrinting().create();
-     try (FileReader reader = new FileReader(folder +"configuration_file.json")) {
-        Configuration confi = g2.fromJson(reader,Configuration.class);
-        System.out.println("confi have read configuration_file.json!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-     } catch (IOException e) {
-        e.printStackTrace();
-     }
+            // Define the type for the Configuration object
+            Type configType = new TypeToken<Configuration>() {
+            }.getType();
+            Configuration config = gson.fromJson(reader, configType);
 
-     
-     Gson g3 = new GsonBuilder().setPrettyPrinting().create();
-     try (FileReader reader = new FileReader(folder+ "camera_data.json")) {
-         // Define the type to parse the JSON structure
-         Type type = new TypeToken<Map<String, List<StampedDetectedObjects>>>() {}.getType();
-         Map<String, List<StampedDetectedObjects>> cameraData = g3.fromJson(reader, type);
-         // Iterate over all cameras and their data
-         for (Map.Entry<String, List<StampedDetectedObjects>> entry : cameraData.entrySet()) {
-             String cameraName = entry.getKey();
-             List<StampedDetectedObjects> detectedObjects = entry.getValue();
-         }
-         System.out.println("cameraData have read camera_data.json!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-     } catch (IOException e) {
-         e.printStackTrace();
-     }
+            // Print the loaded configuration data
+            System.out.println("Configuration: " + config);
+            System.out.println("Cameras: " + config.Cameras.toString());
+            System.out.println("Lidar Workers: " + config.LiDarWorkers.toString());
+            System.out.println("Pose JSON File: " + config.poseJsonFile);
+            System.out.println("Tick Time: " + config.TickTime);
+            System.out.println("Duration: " + config.duration);
 
+
+            //load other jsons and start the simulation
+            String poseJsonFilePath = getFullJsonFilePath(configFilePath, config.poseJsonFile);
+            List<Pose> poses = loadPoseData(poseJsonFilePath);
+
+            String lidarJsonFilePath = getFullJsonFilePath(configFilePath, config.LiDarWorkers.getLidars_data_path());
+            List<StampedCloudPoints> lidarData = loadLidarData(lidarJsonFilePath);
+
+
+            String cameraJsonFilePath = getFullJsonFilePath(configFilePath, config.Cameras.getCamera_datas_path());
+            List<Camera> cameras = loadCameras(config, cameraJsonFilePath);
+
+
+            System.out.println("SUMMERY:"
+                    +"\nDuration: " + config.duration + " seconds"
+                    +"\nTick Time: " + config.TickTime + " seconds");
+            for (Camera camera : cameras) {
+                System.out.println(camera);
+            }
+            for (LidarConfigurations lidarConfiguration : config.LiDarWorkers.getLidarConfigurations()) {
+                System.out.println(lidarConfiguration);
+            }
+            System.out.println("******");
+
+
+            // initialize the services
+
+
+            //create pose service
+            GPSIMU gpsImu = new GPSIMU(0, STATUS.UP, poses);
+            PoseService poseService = new PoseService(gpsImu);
+
+
+            //create lidar database and lidar services
+            LiDarDataBase liDarDataBase = LiDarDataBase.getInstance();
+            liDarDataBase.setCloudPoints(lidarData);//update lidar data
+
+            List<LiDarWorkerTracker> liDarWorkerTrackers = new ArrayList<>();//all lidarWorkers
+            List<LiDarService> liDarServices = new ArrayList<>();//all lidarServices
+
+            List<LidarConfigurations> lidarConfigurations = config.LiDarWorkers.getLidarConfigurations();
+            for (LidarConfigurations lidarConfiguration : lidarConfigurations) {
+                LiDarWorkerTracker liDarWorkerTracker = new LiDarWorkerTracker(lidarConfiguration.id, lidarConfiguration.frequency);
+
+                liDarWorkerTrackers.add(liDarWorkerTracker);
+                liDarServices.add(new LiDarService(liDarWorkerTracker));
+            }
+
+            //create camera services
+            List<CameraService> cameraServices = new ArrayList<>();
+            for (Camera camera : cameras) {
+                cameraServices.add(new CameraService(camera));
+            }
+
+            //create fusion slam service
+            FusionSlam fusionSlam = FusionSlam.getInstance();
+            FusionSlamService fusionSlamService = new FusionSlamService(fusionSlam);
+
+            //create time service
+            TimeService timeService = new TimeService(config.TickTime, config.duration);
+
+            //start the program
+            List<MicroService> services = new ArrayList<>();
+            services.add(poseService);
+            services.addAll(liDarServices);
+            services.addAll(cameraServices);
+            services.add(fusionSlamService);
+            services.add(timeService);//add time service last so that when he starts all the services will already be registered
+            startServices(services);
+
+            reader.close();
+
+
+        } catch (IOException e) {
+            System.err.println("Error reading or parsing the configuration file.");
+            e.printStackTrace();
+        }
+    }
+
+
+    private static void startServices(List<MicroService> services) {
+        for (MicroService service : services) {
+            Thread thread = new Thread(service);
+            thread.start();
+        }
+    }
+
+
+
+
+    // Helper method to extract the pose JSON file path from the directory of the config file
+    private static String getFullJsonFilePath(String configFilePath, String poseJsonFileName) {
+        Path configPath = Paths.get(configFilePath).getParent(); // Get the directory of the config file
+        return configPath.resolve(poseJsonFileName).toString(); // Resolve the full path to the pose JSON file
+    }
+
+    // Helper method to load and parse the pose JSON file
+    private static List<Pose> loadPoseData(String poseJsonFilePath) {
+        try {
+            Gson gson = new Gson();
+            FileReader reader = new FileReader(poseJsonFilePath);
+
+            // Define the type for the Pose list
+            Type poseListType = new TypeToken<List<Pose>>() {
+            }.getType();
+            List<Pose> poses = gson.fromJson(reader, poseListType);
+
+            // Print the loaded pose data
+            System.out.println("\n******Pose Data: ");
+            for (Pose pose : poses) {
+                System.out.println(pose);
+            }
+            System.out.println("******");
+            reader.close();
+            return poses;
+        } catch (IOException e) {
+            System.err.println("Error reading or parsing the pose JSON file.");
+            e.printStackTrace();
+
+        }
+        return null;
+    }
+
+    private static List<StampedCloudPoints> loadLidarData(String lidarJsonFilePath) {
+        try {
+            // Create a GsonBuilder and register the custom deserializer for CloudPoint
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.registerTypeAdapter(CloudPoint.class, new CloudPoint());
+            Gson gson = gsonBuilder.create();
+
+            FileReader reader = new FileReader(lidarJsonFilePath);
+
+            // Define the type for the StampedCloudPoints list
+            Type lidarListType = new TypeToken<List<StampedCloudPoints>>() {
+            }.getType();
+            List<StampedCloudPoints> lidarData = gson.fromJson(reader, lidarListType);
+
+            // Print the loaded LiDAR data
+            System.out.println("\n******LiDAR Data: ");
+            for (StampedCloudPoints stampedCloudPoints : lidarData) {
+                System.out.println(stampedCloudPoints);
+            }
+            System.out.println("******");
+            reader.close();
+            return lidarData;
+        } catch (IOException e) {
+            System.err.println("Error reading or parsing the LiDAR JSON file.");
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static List<Camera> loadCameras(Configuration config,String cameraJsonFilePath) {
+        //pull the camera data from the json file and create a list of cameras from combining the data from the json file and the configuration file
+        List<Camera> cameras = new ArrayList<>();
+        for (CameraConfigurations camerasConfigurations1 : config.Cameras.getCamerasConfigurations()) {
+            Camera camera = new Camera(camerasConfigurations1.id, camerasConfigurations1.frequency, STATUS.UP
+                    , loadCameraData(cameraJsonFilePath).get(camerasConfigurations1.camera_key));
+            cameras.add(camera);
+        }
+      return cameras;
+    }
+
+    private static Map<String,List<StampedDetectedObjects>> loadCameraData(String cameraJsonFilePath) {
+        Map<String, List<StampedDetectedObjects>> cameraDataMap = new HashMap<>();
+        Gson gson = new Gson();
+
+        try (FileReader reader = new FileReader(cameraJsonFilePath)) {
+            // Parse the JSON file into a JsonObject
+            JsonObject rootObject = gson.fromJson(reader, JsonObject.class);
+
+            // Iterate through each camera in the JSON
+            for (Map.Entry<String, JsonElement> entry : rootObject.entrySet()) {
+                String cameraKey = entry.getKey();
+                JsonArray cameraDataArray = entry.getValue().getAsJsonArray().get(0).getAsJsonArray();
+
+                List<StampedDetectedObjects> stampedDetectedObjectsList = new ArrayList<>();
+
+                // Iterate through the camera's array of detected data
+                for (JsonElement element : cameraDataArray) {
+                    JsonObject dataObject = element.getAsJsonObject();
+                    int time = dataObject.get("time").getAsInt();
+
+                    List<DetectedObject> detectedObjects = new ArrayList<>();
+                    JsonArray detectedObjectsArray = dataObject.get("detectedObjects").getAsJsonArray();
+
+                    // Parse detected objects
+                    for (JsonElement objElement : detectedObjectsArray) {
+                        JsonObject obj = objElement.getAsJsonObject();
+                        String id = obj.get("id").getAsString();
+                        String description = obj.get("description").getAsString();
+                        detectedObjects.add(new DetectedObject(id, description));
+                    }
+
+                    // Add the StampedDetectedObjects to the list
+                    stampedDetectedObjectsList.add(new StampedDetectedObjects(time, detectedObjects));
+                }
+
+
+
+                // Add the list to the map with the camera key
+                cameraDataMap.put(cameraKey, stampedDetectedObjectsList);
+            }
+            System.out.println("\n******Camera Data: ");
+            for (Map.Entry<String, List<StampedDetectedObjects>> entry : cameraDataMap.entrySet()) {
+                System.out.println("Camera Key: " + entry.getKey());
+                for (StampedDetectedObjects stampedDetectedObjects : entry.getValue()) {
+                    System.out.println(stampedDetectedObjects);
+                }
+            }
+            System.out.println("******\n");
+        } catch (IOException e) {
+            System.err.println("Error reading the JSON file: " + e.getMessage());
+        } catch (JsonSyntaxException e) {
+            System.err.println("Error parsing the JSON file: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Unexpected error: " + e.getMessage());
+        }
+
+        return cameraDataMap;
 
     }
 }
-

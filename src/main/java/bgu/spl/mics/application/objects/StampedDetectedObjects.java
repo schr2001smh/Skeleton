@@ -15,6 +15,11 @@ public class StampedDetectedObjects {
         this.time = time;
         this.detectedObjects = new ArrayList<>();
     } 
+
+    public StampedDetectedObjects(int time, List<DetectedObject> detectedObjects) {
+        this.time = time;
+        this.detectedObjects = detectedObjects;
+    }
     
     
     public void addDetectedObject(DetectedObject detectedObject) {

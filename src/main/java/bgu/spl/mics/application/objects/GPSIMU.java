@@ -18,6 +18,12 @@ public class GPSIMU {
         this.poses = new ArrayList<>();
     }
 
+    public GPSIMU(int currentTick, STATUS status, List<Pose> poses) {
+        this.currentTick = currentTick;
+        this.status = status;
+        this.poses = poses;
+    }
+
     public void addPose(Pose pose) {
         poses.add(pose);
     }
