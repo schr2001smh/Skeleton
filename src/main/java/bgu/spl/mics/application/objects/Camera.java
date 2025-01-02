@@ -1,5 +1,7 @@
 package bgu.spl.mics.application.objects;
 
+import java.util.List;
+
 /**
  * Represents a camera sensor on the robot.
  * Responsible for detecting objects in the environment.
@@ -9,6 +11,7 @@ public class Camera {
     public int frequency;
     public STATUS status;
     public StampedDetectedObjects detectedObjectsList;
+    private String camera_key;
 
     public Camera(){}; // For serialization
     
@@ -17,6 +20,13 @@ public class Camera {
         this.frequency=frequency;
         this.status= STATUS.UP;
     }
+    public Camera(int id, int frequency, STATUS status, List<StampedDetectedObjects> detectedObjectsList) {
+        this.id=id;
+        this.frequency=frequency;
+        this.status=status;
+        this.detectedObjectsList=detectedObjectsList.get(0);
+    }
+
     public  STATUS getStatus(){
         return status;
     }
