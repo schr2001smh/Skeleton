@@ -80,17 +80,17 @@ public class LiDarService extends MicroService {
         for (DetectedObject detectedObject : detectedObjects) {
            List<List<Double>> cloudPointsList =dataBase.getcloudpoints(time,lasttime,detectedObject.getId());
            List<TrackedObject> trackedObjectsList = new ArrayList<>();
-
-           for (List<Double> cloudPoints : cloudPointsList) {
-              List<CloudPoint> cloudPointObjects = new ArrayList<>();
-              for (Double point : cloudPoints) {
-                  cloudPointObjects.add(new CloudPoint(point.intValue(), point.intValue()));
-              }
-              TrackedObject trackedObjects = new TrackedObject(detectedObject.getId(), time, detectedObject.getDescription(), cloudPointObjects);
-               trackedObjectsList.add(trackedObjects);
-               
-              }
-              sendEvent(new TrackedObjectsEvent(trackedObjectsList));
+           if(cloudPointsList!=null)
+            for (List<Double> cloudPoints : cloudPointsList) {
+                List<CloudPoint> cloudPointObjects = new ArrayList<>();
+                for (Double point : cloudPoints) {
+                    cloudPointObjects.add(new CloudPoint(point.intValue(), point.intValue()));
+                }
+                TrackedObject trackedObjects = new TrackedObject(detectedObject.getId(), time, detectedObject.getDescription(), cloudPointObjects);
+                trackedObjectsList.add(trackedObjects);
+                
+                }
+                sendEvent(new TrackedObjectsEvent(trackedObjectsList));
         }
      });
     //     public TrackedObject(String id, int time, String description,List<CloudPoint> coordinates) {
