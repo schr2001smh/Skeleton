@@ -24,7 +24,6 @@ import bgu.spl.mics.Configuration;
 import bgu.spl.mics.LiDarWorkers;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.objects.Camera;
-import bgu.spl.mics.application.objects.CloudPoint;
 import bgu.spl.mics.application.objects.DetectedObject;
 import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.GPSIMU;
@@ -59,6 +58,7 @@ public class GurionRockRunner {
      * @param args Command-line arguments. The first argument is expected to be the path to the configuration file.
      */
     public static void main(String[] args) {
+        Map<String, List<StampedDetectedObjects>> cameraData = new HashMap<>();
 
         if (args.length == 0) {
 /*
@@ -94,11 +94,18 @@ public class GurionRockRunner {
             List<Pose> poses = loadPoseData(poseJsonFilePath);
 
             String lidarJsonFilePath = getFullJsonFilePath(configFilePath, config.getLidars_data_path());
+            
             List<StampedCloudPoints> lidarData = loadLidarData(lidarJsonFilePath);
 
-
+            
+            
             String cameraJsonFilePath = getFullJsonFilePath(configFilePath, config.getCamera_datas_path());
+            System.out.println("Camera JSON File: " + cameraJsonFilePath);
+           
+            System.out.println("Camera Data: " + loadCameraData(cameraJsonFilePath));
             List<Camera> cameras = loadCameras(config, cameraJsonFilePath);
+            System.out.println(cameras);
+            System.out.println("PRINTINGPRINTINGNGSAJGPRINTINGNGSAJGPRINTINGNGSAJGNGSAJG");
 
 
             System.out.println("SUMMARY:"
@@ -111,7 +118,29 @@ public class GurionRockRunner {
             System.out.println(config);
             System.out.println("******");
 
+            System.out.println("******************************************************************************************************************");
+            Gson g3 = new GsonBuilder().setPrettyPrinting().create();
 
+            try (FileReader reader2 = new FileReader(getFullJsonFilePath(configFilePath, config.getCamera_datas_path()))) {
+                // Define the type to parse the JSON structure
+
+                Type type = new TypeToken<Map<String, List<StampedDetectedObjects>>>() {}.getType();
+                cameraData = g3.fromJson(reader2, type);
+
+                // Iterate over all cameras and their data
+                for (Map.Entry<String, List<StampedDetectedObjects>> entry : cameraData.entrySet()) {
+                    String cameraName = entry.getKey();
+                    List<StampedDetectedObjects> detectedObjects = entry.getValue();
+                    System.out.println("Camera: " + cameraName);
+                    for (StampedDetectedObjects stampedDetectedObjects : detectedObjects) {
+                        System.out.println(stampedDetectedObjects);
+                    }
+                }
+                System.out.println("camera data have been loaded successfully");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println("******************************************************************************************************************");
             // initialize the services
 
 
@@ -138,6 +167,8 @@ public class GurionRockRunner {
             //create camera services
             List<CameraService> cameraServices = new ArrayList<>();
             for (Camera camera : cameras) {
+                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                camera.setstampedDetectedObjects(cameraData.get(cameraData.keySet().toArray()[0]));
                 cameraServices.add(new CameraService(camera));
             }
 
@@ -211,6 +242,8 @@ public class GurionRockRunner {
         return null;
     }
 
+    
+
     private static List<StampedCloudPoints> loadLidarData(String lidarJsonFilePath) {
         try {
             // Create a GsonBuilder and register the custom deserializer for CloudPoint
@@ -240,7 +273,7 @@ public class GurionRockRunner {
         return null;
     }
 
-    private static List<Camera> loadCameras(Configuration config,String cameraJsonFilePath) {
+    private static List<Camera> loadCameras(Configuration config, String cameraJsonFilePath) {
         //pull the camera data from the json file and create a list of cameras from combining the data from the json file and the configuration file
         List<Camera> cameras = new ArrayList<>();
         for (Camera camera : config.getCamerasConfigurations()) {
@@ -263,6 +296,7 @@ public class GurionRockRunner {
                 JsonArray cameraDataArray = entry.getValue().getAsJsonArray().get(0).getAsJsonArray();
 
                 List<StampedDetectedObjects> stampedDetectedObjectsList = new ArrayList<>();
+                
 
                 // Iterate through the camera's array of detected data
                 for (JsonElement element : cameraDataArray) {
@@ -302,7 +336,6 @@ public class GurionRockRunner {
         } catch (Exception e) {
             System.err.println("Unexpected error: " + e.getMessage());
         }
-
         return cameraDataMap;
 
     }

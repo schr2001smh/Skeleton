@@ -6,7 +6,10 @@ import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
 import bgu.spl.mics.application.objects.StampedDetectedObjects;
+
 import java.util.List;
+
+import bgu.spl.mics.MessageBus;
 
 /**
  * CameraService is responsible for processing data from the camera and
@@ -18,7 +21,9 @@ import java.util.List;
 public class CameraService extends MicroService {
     private Camera camera;
     private int time;
+    private int lasttime;
     private List<StampedDetectedObjects> objects;
+    
     /**
      * Constructor for CameraService.
      *
@@ -30,7 +35,7 @@ public class CameraService extends MicroService {
     }
 
     public void sendEvent(DetectObjectsEvent event){
-        sendEvent(event);
+        super.sendEvent(event);
     }
     /**
      * Initializes the CameraService.
@@ -43,7 +48,17 @@ public class CameraService extends MicroService {
        System.out.println("CameraService started");
 
        subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
+         lasttime = time;
           this.time = brod.getTick();
+          List<StampedDetectedObjects> list = camera.objectsDuringTime(lasttime, time);
+          System.out.println("List " + list);
+          
+            if (!list.isEmpty()) {
+            for (StampedDetectedObjects obj : list) {
+                sendEvent(new DetectObjectsEvent(obj));
+                System.out.println(getName() + " detected " + obj + " objects");
+            }
+            }
           
        });
 

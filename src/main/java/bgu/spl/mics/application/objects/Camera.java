@@ -1,5 +1,8 @@
 package bgu.spl.mics.application.objects;
 
+import bgu.spl.mics.application.objects.StampedDetectedObjects;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,10 +13,26 @@ public class Camera {
     public int id;
     public int frequency;
     public STATUS status;
-    public List<StampedDetectedObjects> detectedObjectsList;
+    public List<StampedDetectedObjects> detectedObjectsList = new ArrayList<>();
     private String camera_key;
 
+    public List<StampedDetectedObjects> objectsDuringTime(int lastTime, int currentTime){
+        List<StampedDetectedObjects> objectsDuringTime = new ArrayList<>();
+
+        // System.out.println(detectedObjectsList.toString());
+
+        for (StampedDetectedObjects stampedDetectedObjects : detectedObjectsList) {
+            if (stampedDetectedObjects.getTime() >= lastTime && stampedDetectedObjects.getTime() <= currentTime) {
+                objectsDuringTime.add(stampedDetectedObjects);
+            }
+        }
+        return objectsDuringTime;
+    }
     public Camera(){}; // For serialization
+
+    public void setstampedDetectedObjects(List<StampedDetectedObjects> stampedDetectedObjects){
+        this.detectedObjectsList=stampedDetectedObjects;
+    }
     
     public Camera(int id, int frequency) {
         this.id=id;
