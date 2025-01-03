@@ -86,13 +86,14 @@ public class GurionRockRunner {
             System.out.println("Pose JSON File: " + config.poseJsonFile);
             System.out.println("Tick Time: " + config.TickTime);
             System.out.println("Duration: " + config.Duration);
-            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            
             //load other jsons and start the simulation
             String poseJsonFilePath = getFullJsonFilePath(configFilePath, config.poseJsonFile);
             List<Pose> poses = loadPoseData(poseJsonFilePath);
             String lidarJsonFilePath = getFullJsonFilePath(configFilePath, config.getLidars_data_path());
             List<StampedCloudPoints> lidarData = loadLidarData(lidarJsonFilePath);
-            System.out.println( lidarData);
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // System.out.println( lidarData);
 
             
             
@@ -101,7 +102,8 @@ public class GurionRockRunner {
            
             System.out.println("Camera Data: " + loadCameraData(cameraJsonFilePath));
             List<Camera> cameras = loadCameras(config, cameraJsonFilePath);
-            System.out.println(cameras);
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // System.out.println(cameras);
             System.out.println("PRINTINGPRINTINGNGSAJGPRINTINGNGSAJGPRINTINGNGSAJGNGSAJG");
 
 

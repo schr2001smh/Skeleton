@@ -8,12 +8,12 @@ import java.util.List;
  * Implements the Singleton pattern to ensure a single instance of FusionSlam exists.
  */
 public class FusionSlam {
-    public LandMark[] landmarks;
+    public List<LandMark> landmarks;
     public List<Pose> poses;
 
     // Private constructor to prevent instantiation
     private FusionSlam() {
-        landmarks = new LandMark[0];
+        landmarks = new ArrayList<>();
         poses = new ArrayList<>();
     }
 

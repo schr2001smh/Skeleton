@@ -38,6 +38,7 @@ public class FusionSlamService extends MicroService {
 
        subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
           this.tick = brod.getTick();
+          
        });
 
        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {

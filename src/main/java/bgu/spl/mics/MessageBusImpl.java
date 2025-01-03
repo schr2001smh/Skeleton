@@ -110,7 +110,6 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public Message awaitMessage(MicroService m) throws InterruptedException {
 		while (microserviceMap.get(m).size() == 0){}
-		
 		return microserviceMap.get(m).remove(0);
 	}
 
