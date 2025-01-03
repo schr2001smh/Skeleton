@@ -46,6 +46,18 @@ public class LiDarDataBase {
 
         return instance;
     }
+    public static LiDarDataBase getInstance() {
+        return LiDarDataBaseHolder.INSTANCE;
+    }
+    public synchronized  List<List<Double>> getcloudpoints(int time,int lasttime, String id){
+        for (StampedCloudPoints stampedCloudPoints : cloudPoints) {
+
+            if (stampedCloudPoints.getTime() <=time && stampedCloudPoints.getTime() >lasttime && stampedCloudPoints.getId().equals(id)) {
+                return stampedCloudPoints.getCloudPoints();
+            }
+        }
+        return null;
+    }
 
     public void setCloudPoints(List<StampedCloudPoints> cloudPoints) {
         this.cloudPoints = cloudPoints;

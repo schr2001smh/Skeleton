@@ -17,7 +17,9 @@ public class StampedCloudPoints {
         this.id = id;
         this.cloudPoints = new ArrayList<>();
     }
-
+    public List<List<Double>> getCloudPoints(){
+        return cloudPoints;
+    }
     public void addCloudPoint(List<Double> cloudPoint) {
         cloudPoints.add(cloudPoint);
     }

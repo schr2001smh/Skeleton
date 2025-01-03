@@ -35,14 +35,15 @@ public class TimeService extends MicroService {
 
         while (StartTime < Duration) {
              sendBroadcast(new TickBroadcast(StartTime));
+             System.out.println(StartTime);
              StartTime=StartTime+TickTime;
+             
              
              try {
                  Thread.sleep(TickTime * 1000); // 
              } catch (InterruptedException e) {
                  e.printStackTrace();
              }
-              System.out.println(StartTime);
         }
         terminate();
     }

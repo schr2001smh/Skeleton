@@ -9,8 +9,6 @@ import bgu.spl.mics.application.objects.StampedDetectedObjects;
 
 import java.util.List;
 
-import bgu.spl.mics.MessageBus;
-
 /**
  * CameraService is responsible for processing data from the camera and
  * sending DetectObjectsEvents to LiDAR workers.
@@ -30,7 +28,7 @@ public class CameraService extends MicroService {
      * @param camera The Camera object that this service will use to detect objects.
      */
     public CameraService(Camera camera) {
-        super("camera");
+        super("camera"+ camera.getId());
         this.camera = camera;
     }
 
@@ -51,13 +49,12 @@ public class CameraService extends MicroService {
          lasttime = time;
           this.time = brod.getTick();
           List<StampedDetectedObjects> list = camera.objectsDuringTime(lasttime, time);
-          System.out.println("List " + list);
+          System.out.println(getName() +" detects these objects\n"+ list);
           
             if (!list.isEmpty()) {
-            for (StampedDetectedObjects obj : list) {
-                sendEvent(new DetectObjectsEvent(obj));
-                System.out.println(getName() + " detected " + obj + " objects");
-            }
+                for (StampedDetectedObjects obj : list) {
+                    sendEvent(new DetectObjectsEvent(obj));
+                }
             }
           
        });

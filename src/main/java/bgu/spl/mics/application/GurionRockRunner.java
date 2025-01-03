@@ -65,7 +65,6 @@ public class GurionRockRunner {
             System.out.println("Usage: java Main <path_to_configuration_file>");
             return;
 */
-
             args = new String[1];
             args[0] = "example_input_2/configuration_file.json";  // change before submission!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         }
@@ -87,15 +86,13 @@ public class GurionRockRunner {
             System.out.println("Pose JSON File: " + config.poseJsonFile);
             System.out.println("Tick Time: " + config.TickTime);
             System.out.println("Duration: " + config.Duration);
-
-
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
             //load other jsons and start the simulation
             String poseJsonFilePath = getFullJsonFilePath(configFilePath, config.poseJsonFile);
             List<Pose> poses = loadPoseData(poseJsonFilePath);
-
             String lidarJsonFilePath = getFullJsonFilePath(configFilePath, config.getLidars_data_path());
-            
             List<StampedCloudPoints> lidarData = loadLidarData(lidarJsonFilePath);
+            System.out.println( lidarData);
 
             
             
@@ -166,10 +163,12 @@ public class GurionRockRunner {
 
             //create camera services
             List<CameraService> cameraServices = new ArrayList<>();
+            int counter=0;
             for (Camera camera : cameras) {
                 System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 camera.setstampedDetectedObjects(cameraData.get(cameraData.keySet().toArray()[0]));
                 cameraServices.add(new CameraService(camera));
+                
             }
 
             //create fusion slam service

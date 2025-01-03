@@ -1,4 +1,7 @@
 package bgu.spl.mics.application.services;
+import java.sql.DatabaseMetaData;
+
+import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
@@ -6,8 +9,15 @@ import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent; // Ensure this class exists or remove if not needed
+
 import java.util.List;
 import java.util.ArrayList;
+
+import bgu.spl.mics.application.objects.CloudPoint;
+import bgu.spl.mics.application.objects.DetectedObject;
+import bgu.spl.mics.application.objects.LiDarDataBase;
+import bgu.spl.mics.application.objects.StampedDetectedObjects;
+import bgu.spl.mics.application.objects.TrackedObject;
 
 /**
  * LiDarService is responsible for processing data from the LiDAR sensor and
@@ -18,15 +28,18 @@ import java.util.ArrayList;
  * observations.
  */
 public class LiDarService extends MicroService {
+    private  LiDarDataBase dataBase = LiDarDataBase.getInstance();
     private LiDarWorkerTracker LiDarWorkerTracker;
-    int tick;
+    private int time;
+    private int lasttime;
+
     /**
      * Constructor for LiDarService.
      *
      * @param LiDarWorkerTracker A LiDAR Tracker worker object that this service will use to process data.
      */
     public LiDarService(LiDarWorkerTracker LiDarWorkerTracker) {
-        super("Lidar service");
+        super("Lidar service"+ LiDarWorkerTracker.getId());
         this.LiDarWorkerTracker = LiDarWorkerTracker;
     }
 
@@ -45,7 +58,8 @@ public class LiDarService extends MicroService {
        System.out.println("lidarservice started");
 
        subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
-          this.tick = brod.getTick();
+         lasttime=this.time;
+          this.time = brod.getTick();
        });
 
        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
@@ -59,9 +73,31 @@ public class LiDarService extends MicroService {
      });
     
      subscribeEvent(DetectObjectsEvent.class, (DetectObjectsEvent e) -> {
-        terminate();//TODO: implement this
+        System.out.println("LIDAR PRINTING " + LiDarWorkerTracker.toString());
+        StampedDetectedObjects objects = e.getStampedDetectObjects();
+        int time = objects.time;
+        List<DetectedObject> detectedObjects = objects.getDetectedObjects();
+        for (DetectedObject detectedObject : detectedObjects) {
+           List<List<Double>> cloudPointsList =dataBase.getcloudpoints(time,lasttime,detectedObject.getId());
+           List<TrackedObject> trackedObjectsList = new ArrayList<>();
+
+           for (List<Double> cloudPoints : cloudPointsList) {
+              List<CloudPoint> cloudPointObjects = new ArrayList<>();
+              for (Double point : cloudPoints) {
+                  cloudPointObjects.add(new CloudPoint(point.intValue(), point.intValue()));
+              }
+              TrackedObject trackedObjects = new TrackedObject(detectedObject.getId(), time, detectedObject.getDescription(), cloudPointObjects);
+               trackedObjectsList.add(trackedObjects);
+               
+              }
+              sendEvent(new TrackedObjectsEvent(trackedObjectsList));
+        }
      });
-
-
+    //     public TrackedObject(String id, int time, String description,List<CloudPoint> coordinates) {
+    //     this.id = id;
+    //     this.time = time;
+    //     this.description = description;
+    //     this.coordinates = coordinates;
+    // }
     }
 }

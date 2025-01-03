@@ -9,7 +9,7 @@ public class DetectObjectsEvent implements Event<StampedDetectedObjects> {
         this.objects=objects;
     }
 
-    public StampedDetectedObjects getStampedDetectObjectsEvent(){
+    public StampedDetectedObjects getStampedDetectObjects(){
         return objects;
     }   
 }

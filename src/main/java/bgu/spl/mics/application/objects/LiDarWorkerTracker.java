@@ -23,6 +23,10 @@ public class LiDarWorkerTracker {
     public void addTrackedObject(TrackedObject trackedObject) {
         lastTrackedObjects.add(trackedObject);
     }
+    public void setliDarWorkerTracker(List<TrackedObject> lastTrackedObjects)
+    {
+        this.lastTrackedObjects = lastTrackedObjects;
+    }
 
     public LiDarWorkerTracker(){}// For serialization
     public void setId(int id) {
@@ -40,7 +44,6 @@ public class LiDarWorkerTracker {
     
     @Override
     public String toString() {
-        System.out.println("toString() method called for LidarWorkerTracker");
         return "LidarConfiguration{" +
                "id=" + id +
                ", frequency=" + frequency +
