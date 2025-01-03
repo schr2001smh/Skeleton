@@ -31,10 +31,12 @@ public class TimeService extends MicroService {
      */
     @Override
     protected void initialize() {
-        System.out.println("TimeService started:  "+ TickTime + " " + Duration);
+        System.out.println("TimeService started:  ticktime= "+ TickTime + " duration =" + Duration);
+
         while (StartTime < Duration) {
-             sendBroadcast(new TickBroadcast(TickTime));
-            StartTime=StartTime+TickTime;
+             sendBroadcast(new TickBroadcast(StartTime));
+             StartTime=StartTime+TickTime;
+              System.out.println(StartTime);
         }
         terminate();
     }

@@ -20,6 +20,7 @@ public class Camera {
         this.frequency=frequency;
         this.status= STATUS.UP;
     }
+
     public Camera(int id, int frequency, STATUS status, List<StampedDetectedObjects> detectedObjectsList) {
         this.id=id;
         this.frequency=frequency;
@@ -30,20 +31,28 @@ public class Camera {
     public  STATUS getStatus(){
         return status;
     }
+
     public void setStatus(STATUS status){
         this.status=status;
     }
+
     public int getId(){
         return id;
     }
+
     public int getFrequency(){
         return frequency;
     }
+
     public void setFrequency(int frequency){
         this.frequency=frequency;
     }
+
     public void setId(int id){
         this.id=id;
+    }
+    public List<StampedDetectedObjects> getstaStampedDetectedObjects(){
+        return detectedObjectsList;
     }
     
     @Override

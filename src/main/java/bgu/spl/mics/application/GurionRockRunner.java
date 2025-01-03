@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -46,6 +48,8 @@ import bgu.spl.mics.application.services.TimeService;
  * </p>
  */
 public class GurionRockRunner {
+
+    private static final ExecutorService executeService = Executors.newCachedThreadPool();
 
     /**
      * The main method of the simulation.
@@ -165,8 +169,9 @@ public class GurionRockRunner {
 
     private static void startServices(List<MicroService> services) {
         for (MicroService service : services) {
-            Thread thread = new Thread(service);
+         Thread thread = new Thread(service);
             thread.start();
+            // executeService.submit(service);
         }
     }
 
