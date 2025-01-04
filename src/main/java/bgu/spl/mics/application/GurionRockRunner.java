@@ -165,7 +165,6 @@ public class GurionRockRunner {
 
             //create camera services
             List<CameraService> cameraServices = new ArrayList<>();
-            int counter=0;
             for (Camera camera : cameras) {
                 System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 camera.setstampedDetectedObjects(cameraData.get(cameraData.keySet().toArray()[0]));

@@ -4,6 +4,10 @@ import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.messages.TrackedObjectsEvent;
 import bgu.spl.mics.application.objects.FusionSlam;
+import bgu.spl.mics.application.objects.TrackedObject;
+
+import java.util.List;
+
 import bgu.spl.mics.MicroService;
 
 /**
@@ -53,6 +57,22 @@ public class FusionSlamService extends MicroService {
 
      subscribeEvent(TrackedObjectsEvent.class, (TrackedObjectsEvent event) -> {
         System.out.println("FusionSlamService received TrackedObjectsEvent from ");
+
+        List<TrackedObject> objects = event.getTrackedObjectsEvent();
+        
+        for (TrackedObject obj : objects) {
+            // Transform the cloud points to the charging station's coordinate system using the current pose
+            obj.transformToCoordinateSystem(fusionSlam.getCurrentPose());
+
+            // Check if the object is new or previously detected
+            if (fusionSlam.isNewObject(obj)) {
+                // If new, add it to the map
+                fusionSlam.addObjectToMap(obj);
+            } else {
+                // If previously detected, update measurements by averaging with previous data
+                fusionSlam.updateObjectInMap(obj);
+            }
+        }
      });
     }
 }

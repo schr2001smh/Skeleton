@@ -4,8 +4,8 @@ import java.util.List;
 import bgu.spl.mics.application.objects.Camera;
 
  class cameraz{
-    public List<Camera> CamerasConfigurations;
-    public String camera_datas_path;
+    private List<Camera> CamerasConfigurations;
+    private String camera_datas_path;
     
     public cameraz(){}; // For serialization
     public List<Camera> getCamerasConfigurations(){

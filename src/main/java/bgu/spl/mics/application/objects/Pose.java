@@ -5,52 +5,57 @@ package bgu.spl.mics.application.objects;
  * Includes x, y coordinates and the yaw angle relative to a global coordinate system.
  */
 public class Pose {
-    public float x;
-    public float y;
-    public float yaw;
-    public int time;
+    private double x, y, z;
+    private double orientation;
 
-    public Pose(float x, float y, float yaw, int time) {
+    public Pose(double x, double y, double z, double orientation) {
         this.x = x;
         this.y = y;
-        this.yaw = yaw;
-        this.time = time;
+        this.z = z;
+        this.orientation = orientation;
     }
+
     public Pose(){}; // For serialization
-    public float getX(){
+
+    public double getX() {
         return x;
     }
-    public void setX(float x){
-        this.x=x;
+
+    public void setX(double x) {
+        this.x = x;
     }
-    public float getY(){
+
+    public double getY() {
         return y;
-    }   
-    public void setY(float y){
-        this.y=y;
-    }   
-    public float getYaw(){
-        return yaw;
     }
-    public void setYaw(float yaw){
-        this.yaw=yaw;
+
+    public void setY(double y) {
+        this.y = y;
     }
-    public int getTime(){
-        return time;
+
+    public double getZ() {
+        return z;
     }
-    public void setTime(int time){
-        this.time=time;
+
+    public void setZ(double z) {
+        this.z = z;
     }
+
+    public double getOrientation() {
+        return orientation;
+    }
+
+    public void setOrientation(double orientation) {
+        this.orientation = orientation;
+    }
+
     @Override
     public String toString() {
-        return "time: " + time + '\'' +
-         ", x: " + x + '\''+
-         ", y: " + y + '\''+
-         ", yaw: " + yaw
-        ;
+        return "Pose{" +
+                "x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                ", orientation=" + orientation +
+                '}';
     }
-    // "time": 3,
-    // "x": -5.7074,
-    // "y": 0.1484,
-    // "yaw": -92.65
 }

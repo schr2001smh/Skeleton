@@ -8,19 +8,52 @@ import java.util.List;
  * time of tracking, and coordinates in the environment.
  */
 public class TrackedObject {
-    public String id;
-    public int time;
-    public String description;
-    public List<CloudPoint> coordinates;
+    private String id;
+    private int time;
+    private String description;
+    private List<CloudPoint> coordinates;
 
-    public TrackedObject(String id, int time, String description,List<CloudPoint> coordinates) {
+    public TrackedObject(String id, int time, String description, List<CloudPoint> coordinates) {
         this.id = id;
         this.time = time;
         this.description = description;
         this.coordinates = coordinates;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public List<CloudPoint> getCoordinates() {
+        return coordinates;
+    }
+
+    public void setCoordinates(List<CloudPoint> coordinates) {
+        this.coordinates = coordinates;
+    }
+
     public void addCoordinate(CloudPoint coordinate) {
         coordinates.add(coordinate);
+    }
+
+    public void transformToCoordinateSystem(Pose pose) {
+        
+    }
+
+    public void updateWithNewData(TrackedObject newData) {
+        if (!this.id.equals(newData.getId())) {
+            throw new IllegalArgumentException("TrackedObject IDs do not match.");
+        }
+        this.time = newData.time;
+        this.description = newData.description;
+        
+        for (int i = 0; i < this.coordinates.size(); i++) {
+            CloudPoint oldPoint = this.coordinates.get(i);
+            CloudPoint newPoint = newData.coordinates.get(i);
+            double avgX = (oldPoint.getX() + newPoint.getX()) / 2;
+            double avgY = (oldPoint.getY() + newPoint.getY()) / 2;
+            oldPoint.setX(avgX);
+            oldPoint.setY(avgY);
+        }
     }
 }

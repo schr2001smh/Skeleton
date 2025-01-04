@@ -1,6 +1,5 @@
 package bgu.spl.mics.application.objects;
 
-import bgu.spl.mics.application.objects.StampedDetectedObjects;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +9,9 @@ import java.util.List;
  * Responsible for detecting objects in the environment.
  */
 public class Camera {
-    public int id;
-    public int frequency;
-    public STATUS status;
+    private int id;
+    private int frequency;
+    private STATUS status;
     public List<StampedDetectedObjects> detectedObjectsList = new ArrayList<>();
     private String camera_key;
 

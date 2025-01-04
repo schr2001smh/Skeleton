@@ -4,6 +4,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.ArrayList;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -15,7 +16,7 @@ import com.google.gson.reflect.TypeToken;
  */
 public class LiDarDataBase {
 
-    public List<StampedCloudPoints> cloudPoints;
+    private List<StampedCloudPoints> cloudPoints;
 
     // Private constructor to prevent instantiation
     private LiDarDataBase() {
@@ -57,6 +58,23 @@ public class LiDarDataBase {
             }
         }
         return null;
+    }
+
+    public synchronized List<DetectedObject> getDetectedObjects(int time) {
+        List<DetectedObject> detectedObjects = new ArrayList<>();
+        for (StampedCloudPoints stampedCloudPoints : cloudPoints) {
+            if (stampedCloudPoints.getTime() == time) {
+                // Assuming there's a method to get description from another source
+                String description = getDescriptionForId(stampedCloudPoints.getId());
+                detectedObjects.add(new DetectedObject(stampedCloudPoints.getId(), description));
+            }
+        }
+        return detectedObjects;
+    }
+
+    private String getDescriptionForId(String id) {
+        // Implement logic to get description for the given id
+        return "Description for " + id;
     }
 
     public void setCloudPoints(List<StampedCloudPoints> cloudPoints) {

@@ -8,9 +8,9 @@ import java.util.List;
  * Used by the LiDAR system to store and process point cloud data for tracked objects.
  */
 public class StampedCloudPoints {
-    public String id;
-    public int time;
-    public List<List<Double>> cloudPoints= new ArrayList<>();
+    private String id;
+    private int time;
+    private List<List<Double>> cloudPoints= new ArrayList<>();
 
     public StampedCloudPoints(String id, int time) {
         this.time = time;
@@ -42,6 +42,7 @@ public class StampedCloudPoints {
     public void setCloudPoints(List<List<Double>> cloudPoints){
         this.cloudPoints=cloudPoints;
     }
+    
     @Override
   public String toString() {
         return "time: " + time +'\''+

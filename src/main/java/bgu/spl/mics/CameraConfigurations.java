@@ -1,7 +1,7 @@
 package bgu.spl.mics;
 
 public class CameraConfigurations {
-    public int id;
-    public int frequency;
-    public String camera_key;
+    private int id;
+    private int frequency;
+    private String camera_key;
 }

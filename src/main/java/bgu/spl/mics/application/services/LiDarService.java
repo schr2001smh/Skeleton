@@ -1,7 +1,5 @@
 package bgu.spl.mics.application.services;
-import java.sql.DatabaseMetaData;
 
-import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
@@ -58,8 +56,27 @@ public class LiDarService extends MicroService {
        System.out.println("lidarservice started");
 
        subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
-         lasttime=this.time;
-          this.time = brod.getTick();
+            lasttime = this.time;
+            this.time = brod.getTick();
+            
+            // Call TrackedObjectsEvent each tick
+            List<DetectedObject> detectedObjects = dataBase.getDetectedObjects(time);
+            List<TrackedObject> trackedObjectsList = new ArrayList<>();
+            for (DetectedObject detectedObject : detectedObjects) {
+                List<List<Double>> cloudPointsList = dataBase.getcloudpoints(time, lasttime, detectedObject.getId());
+                if (cloudPointsList != null) {
+                    for (List<Double> cloudPoints : cloudPointsList) {
+                        List<CloudPoint> cloudPointObjects = new ArrayList<>();
+                        for (Double point : cloudPoints) {
+                            cloudPointObjects.add(new CloudPoint(point.intValue(), point.intValue()));
+                        }
+                        TrackedObject trackedObjects = new TrackedObject(detectedObject.getId(), time, detectedObject.getDescription(), cloudPointObjects);
+                        trackedObjectsList.add(trackedObjects);
+                    }
+                }
+            }
+            //System.out.println("TrackedObjectsEvent sent");
+            sendEvent(new TrackedObjectsEvent(trackedObjectsList));
        });
 
        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
@@ -73,9 +90,9 @@ public class LiDarService extends MicroService {
      });
     
      subscribeEvent(DetectObjectsEvent.class, (DetectObjectsEvent e) -> {
-        System.out.println("LIDAR PRINTING " + LiDarWorkerTracker.toString());
+        //System.out.println("LIDAR PRINTING " + LiDarWorkerTracker.toString());
         StampedDetectedObjects objects = e.getStampedDetectObjects();
-        int time = objects.time;
+        int time = objects.getTime();
         List<DetectedObject> detectedObjects = objects.getDetectedObjects();
         for (DetectedObject detectedObject : detectedObjects) {
            List<List<Double>> cloudPointsList =dataBase.getcloudpoints(time,lasttime,detectedObject.getId());
