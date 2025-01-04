@@ -32,7 +32,6 @@ public class TimeService extends MicroService {
     @Override
     protected void initialize() {
         System.out.println("TimeService started:  ticktime= "+ TickTime + " duration =" + Duration);
-
         while (StartTime < Duration) {
              sendBroadcast(new TickBroadcast(StartTime));
              System.out.println(StartTime);
@@ -40,7 +39,7 @@ public class TimeService extends MicroService {
              
              
              try {
-                 Thread.sleep(TickTime * 1000); // 
+                 Thread.sleep(TickTime * 2000); // 
              } catch (InterruptedException e) {
                  e.printStackTrace();
              }

@@ -17,11 +17,8 @@ public class Camera {
 
     public List<StampedDetectedObjects> objectsDuringTime(int lastTime, int currentTime){
         List<StampedDetectedObjects> objectsDuringTime = new ArrayList<>();
-
-        // System.out.println(detectedObjectsList.toString());
-
         for (StampedDetectedObjects stampedDetectedObjects : detectedObjectsList) {
-            if (stampedDetectedObjects.getTime() >= lastTime && stampedDetectedObjects.getTime() <= currentTime) {
+            if (stampedDetectedObjects.getTime() > lastTime && stampedDetectedObjects.getTime() <= currentTime&&!objectsDuringTime.contains(stampedDetectedObjects)) {
                 objectsDuringTime.add(stampedDetectedObjects);
             }
         }
@@ -31,6 +28,7 @@ public class Camera {
 
     public void setstampedDetectedObjects(List<StampedDetectedObjects> stampedDetectedObjects){
         this.detectedObjectsList=stampedDetectedObjects;
+        
     }
     
     public Camera(int id, int frequency) {
@@ -45,7 +43,6 @@ public class Camera {
         this.status=status;
         this.detectedObjectsList=detectedObjectsList;
     }
-
     public  STATUS getStatus(){
         return status;
     }

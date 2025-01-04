@@ -125,6 +125,7 @@ public class GurionRockRunner {
 
                 Type type = new TypeToken<Map<String, List<StampedDetectedObjects>>>() {}.getType();
                 cameraData = g3.fromJson(reader2, type);
+                System.out.println(cameraData);
 
                 // Iterate over all cameras and their data
                 for (Map.Entry<String, List<StampedDetectedObjects>> entry : cameraData.entrySet()) {
@@ -165,9 +166,11 @@ public class GurionRockRunner {
 
             //create camera services
             List<CameraService> cameraServices = new ArrayList<>();
+            int counter = 0;
             for (Camera camera : cameras) {
+                counter++;
                 System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-                camera.setstampedDetectedObjects(cameraData.get(cameraData.keySet().toArray()[0]));
+                camera.setstampedDetectedObjects(cameraData.get("camera"+camera.getId()));
                 cameraServices.add(new CameraService(camera));
                 
             }

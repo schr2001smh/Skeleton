@@ -56,4 +56,13 @@ public class TrackedObject {
             oldPoint.setY(avgY);
         }
     }
+    @Override
+    public String toString() {
+        return "TrackedObject{" +
+                "id='" + id + '\'' +
+                ", time=" + time +
+                ", description='" + description + '\'' +
+                ", coordinates=" + coordinates +
+                '}';
+    }
 }

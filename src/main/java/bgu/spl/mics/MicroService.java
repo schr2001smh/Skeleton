@@ -105,7 +105,7 @@ public abstract class MicroService implements Runnable {
      *         			micro-service processing this event.
      * 	       			null in case no micro-service has subscribed to {@code e.getClass()}.
      */
-    protected final <T> Future<T> sendEvent(Event<T> e) {
+    protected  final <T> Future<T> sendEvent(Event<T> e) {
         Future<T> t=messageBus.sendEvent(e);
         if (!futureMap.containsKey(e))
             futureMap.put(e, t);

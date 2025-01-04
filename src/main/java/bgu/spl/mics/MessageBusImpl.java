@@ -14,7 +14,6 @@ public class MessageBusImpl implements MessageBus {
 	private ConcurrentHashMap<Class<? extends Broadcast>, List<MicroService>> broadcastMap=new ConcurrentHashMap<>();
 	private ConcurrentHashMap<MicroService, List<Message>> microserviceMap= new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Event<?>, Future<?>> futureMap= new ConcurrentHashMap<>();
-	
 	private int roundRobinCounter=0;
 	private int counter=0;
 	
@@ -32,14 +31,14 @@ public class MessageBusImpl implements MessageBus {
 	}
 	
 	@Override
-	public <T> void  subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
+	public synchronized <T> void  subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
 		if (!eventMap.containsKey(type))
 			eventMap.put(type, new ArrayList<MicroService>());
 		eventMap.get(type).add(m);
 	}
 
 	@Override
-	public void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
+	public synchronized void subscribeBroadcast(Class<? extends Broadcast> type, MicroService m) {
 		if (!broadcastMap.containsKey(type))
 			broadcastMap.put(type, new ArrayList<MicroService>());
 		broadcastMap.get(type).add(m);
@@ -56,7 +55,7 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public void sendBroadcast(Broadcast b) {
+	public synchronized void sendBroadcast(Broadcast b) {
 		if (!broadcastMap.containsKey(b.getClass()))
 			return;
 		broadcastMap.get(b.getClass()).forEach(m -> {
@@ -67,7 +66,7 @@ public class MessageBusImpl implements MessageBus {
 
 	
 	@Override
-	public <T> Future<T> sendEvent(Event<T> e) {
+	public synchronized  <T> Future<T> sendEvent(Event<T> e) {
 		counter=0;
 		Future<T> future = new Future<>();
 		if (!eventMap.containsKey(e.getClass())) {
@@ -93,7 +92,7 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public void register(MicroService m) {
+	public synchronized void register(MicroService m) {
 		if (!microserviceMap.containsKey(m))
 			microserviceMap.put(m, new ArrayList<Message>());
 	}
