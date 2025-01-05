@@ -72,29 +72,35 @@ public class LiDarService extends MicroService {
     
 
      subscribeEvent(DetectObjectsEvent.class, (DetectObjectsEvent e) -> {
+
         StampedDetectedObjects objects = e.getStampedDetectObjects();
         int time = objects.getTime();
         List<DetectedObject> detectedObjects = objects.getDetectedObjects();
+
         for (DetectedObject detectedObject : detectedObjects) {
+
            List<List<Double>> cloudPointsList = dataBase.getcloudpoints(time,lasttime,detectedObject.getId());
 
            List<TrackedObject> trackedObjectsList = new ArrayList<>();
+
            if(cloudPointsList!=null)
            {
+            TrackedObject trackedObjects = new TrackedObject(getName(), time, getName(), null);
+            List<CloudPoint> cloudPointObjects = new ArrayList<>();
+
                 for (List<Double> cloudPoints : cloudPointsList) {
-                    List<CloudPoint> cloudPointObjects = new ArrayList<>();
-                    cloudPointObjects.add(new CloudPoint(cloudPoints.get(0), cloudPoints.get(1)));
-                    
-                    TrackedObject trackedObjects = new TrackedObject(detectedObject.getId(), time, detectedObject.getDescription(), cloudPointObjects);
-                    
-                    if(!trackedObjectsList.contains(trackedObjects)) {
-                        
-                        trackedObjectsList.add(trackedObjects);
-                    } 
+                    cloudPointObjects.add(new CloudPoint(cloudPoints.get(0), cloudPoints.get(1)));   
                 }  
+                trackedObjects = new TrackedObject(detectedObject.getId(), time, detectedObject.getDescription(), cloudPointObjects);
+                                    
+                if(!trackedObjectsList.contains(trackedObjects)) {
+                        
+                    trackedObjectsList.add(trackedObjects);
+                } 
             }
             
          sendEvent(new TrackedObjectsEvent(trackedObjectsList));
+        
            // System.out.println(trackedObjectsList+"Meaning it sends good coordinates");
 
       

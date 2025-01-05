@@ -104,7 +104,7 @@ public class GurionRockRunner {
             List<Camera> cameras = loadCameras(config, cameraJsonFilePath);
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             // System.out.println(cameras);
-            System.out.println("PRINTINGPRINTINGNGSAJGPRINTINGNGSAJGPRINTINGNGSAJGNGSAJG");
+            
 
 
             System.out.println("SUMMARY:"

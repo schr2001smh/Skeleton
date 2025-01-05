@@ -35,12 +35,13 @@ public class FusionSlam {
         return FusionSlamHolder.INSTANCE;
     }
 
-    public Pose getCurrentPose(int tick) {
+    public synchronized Pose getCurrentPose(int tick) {
+
        if (tick > poses.size()) {
            return null;
        }
        else {
-        System.err.println("time is= " + tick +"i think my pose is poses.get(tick)" + poses.get(tick -1));
+        System.err.println("at time " + tick + "i think my pose is poses.get(tick) \n" + poses.get(tick -1));
            return poses.get(tick -1);
        }
     }
@@ -54,8 +55,7 @@ public class FusionSlam {
     }
 
     public void updateObjectInMap(TrackedObject obj) {
-        TrackedObject existingObj = map.get(obj.getId());
-        existingObj.updateWithNewData(obj);
+        map.get(obj.getId()).updateWithNewData(obj);
     }
 
     public List<LandMark> getLandmarks() {

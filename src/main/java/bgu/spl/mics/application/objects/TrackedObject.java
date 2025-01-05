@@ -23,7 +23,9 @@ public class TrackedObject {
     public String getId() {
         return id;
     }
-
+    public int getTime(){
+        return time;
+    }
     public List<CloudPoint> getCoordinates() {
         return coordinates;
     }
@@ -37,11 +39,16 @@ public class TrackedObject {
     }
 
     public void transformToCoordinateSystem(Pose pose) {
+        double yaw=pose.getOrientation()*(Math.PI/180);
+        double x;
+        double y;
         for (CloudPoint point : coordinates) {
-            point.setX(point.getX() + pose.getX());
-            point.setY(point.getY() + pose.getY());
+            x=Math.cos(yaw)*point.getX() - Math.sin(yaw)*point.getY() + pose.getX();
+            y=Math.sin(yaw)*point.getX() + Math.cos(yaw)*point.getY() + pose.getY();
+            point.setX(x);
+            point.setY(y);
         }
-        System.out.println("after current pose calcs \n" + coordinates);
+       
     }
 
     public void updateWithNewData(TrackedObject newData) {
@@ -50,16 +57,25 @@ public class TrackedObject {
         }
         this.time = newData.time;
         this.description = newData.description;
-        
-        for (int i = 0; i < this.coordinates.size(); i++) {
-            CloudPoint oldPoint = this.coordinates.get(i);
-            CloudPoint newPoint = newData.coordinates.get(i);
-            double avgX = (oldPoint.getX() + newPoint.getX()) / 2;
-            double avgY = (oldPoint.getY() + newPoint.getY()) / 2;
-            oldPoint.setX(avgX);
-            oldPoint.setY(avgY);
+        int Max=Math.max(newData.coordinates.size(), this.coordinates.size());
+
+        for (int i = 0; i < Max; i++) {
+            if (i<this.coordinates.size()) {
+                CloudPoint oldPoint = this.coordinates.get(i);
+                CloudPoint newPoint = newData.coordinates.get(i);
+                double avgX = (oldPoint.getX() + newPoint.getX()) / 2;
+                double avgY = (oldPoint.getY() + newPoint.getY()) / 2;
+                this.coordinates.get(i).setX(avgX);
+                this.coordinates.get(i).setY(avgY);
+            }
+            else{
+                this.coordinates.add(newData.coordinates.get(i));
+            }
+           System.out.println("updated data \n" + this + 
+           "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1\n");
+            
         }
-        System.out.println("Updated TrackedObject: \n "+ this+ "\n");
+        
     }
     @Override
     public String toString() {
