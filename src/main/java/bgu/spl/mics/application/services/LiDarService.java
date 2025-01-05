@@ -2,6 +2,8 @@ package bgu.spl.mics.application.services;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
@@ -29,6 +31,7 @@ public class LiDarService extends MicroService {
     private LiDarWorkerTracker LiDarWorkerTracker;
     private int time;
     private int lasttime;
+    private HashMap<Integer, List<TrackedObject>> trackedMap = new HashMap<>();
 
     /**
      * Constructor for LiDarService.
@@ -58,10 +61,18 @@ public class LiDarService extends MicroService {
        subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
             lasttime = this.time;
             this.time = brod.getTick();
+            for(int i=0;i<this.time;i++)
+            {
+                if (trackedMap.containsKey(i)) {
+                 //sendEvent(new TrackedObjectsEvent(trackedMap.get(i),LiDarWorkerTracker.getFrequency()));
+                    trackedMap.remove(i);
+                }
+            }
        });
 
        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
         System.out.println(getName()+" detected "+brod.getSenderName()+"terminated");
+        System.out.println("lidar terminated");
         terminate();
        });
 
@@ -78,7 +89,6 @@ public class LiDarService extends MicroService {
         List<DetectedObject> detectedObjects = objects.getDetectedObjects();
 
         for (DetectedObject detectedObject : detectedObjects) {
-
            List<List<Double>> cloudPointsList = dataBase.getcloudpoints(time,lasttime,detectedObject.getId());
 
            List<TrackedObject> trackedObjectsList = new ArrayList<>();
@@ -92,14 +102,15 @@ public class LiDarService extends MicroService {
                     cloudPointObjects.add(new CloudPoint(cloudPoints.get(0), cloudPoints.get(1)));   
                 }  
                 trackedObjects = new TrackedObject(detectedObject.getId(), time, detectedObject.getDescription(), cloudPointObjects);
-                                    
                 if(!trackedObjectsList.contains(trackedObjects)) {
                         
                     trackedObjectsList.add(trackedObjects);
                 } 
+
             }
             
-         sendEvent(new TrackedObjectsEvent(trackedObjectsList,LiDarWorkerTracker.getFrequency()));
+            trackedMap.put(time + LiDarWorkerTracker.getFrequency(), trackedObjectsList);
+          sendEvent(new TrackedObjectsEvent(trackedObjectsList,LiDarWorkerTracker.getFrequency()));
         
            // System.out.println(trackedObjectsList+"Meaning it sends good coordinates");
 

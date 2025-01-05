@@ -1,11 +1,11 @@
 package bgu.spl.mics.application.objects;
 
-/**
- * Represents the robot's pose (position and orientation) in the environment.
- * Includes x, y coordinates and the yaw angle relative to a global coordinate system.
- */
+import com.google.gson.annotations.SerializedName;
+
 public class Pose {
     private double x, y, z;
+
+    @SerializedName("yaw")
     private double orientation;
 
     public Pose(double x, double y, double z, double orientation) {
@@ -15,7 +15,7 @@ public class Pose {
         this.orientation = orientation;
     }
 
-    public Pose(){}; // For serialization
+    public Pose(){} // For serialization
 
     public double getX() {
         return x;
@@ -55,7 +55,7 @@ public class Pose {
                 "x=" + x +
                 ", y=" + y +
                 ", z=" + z +
-                ", orientation=" + orientation +
+                ", yaw=" + orientation +
                 '}';
     }
 }

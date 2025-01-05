@@ -66,17 +66,16 @@ public class FusionSlamService extends MicroService {
        
 
         for (TrackedObject obj : objects) {
-            
             // Transform the cloud points to the charging station's coordinate system using the current pose
-            obj.transformToCoordinateSystem(fusionSlam.getCurrentPose(obj.getTime()));
+            obj.transformToCoordinateSystem(fusionSlam.getCurrentPose( obj.getTime() - event.getFrequency() ));
             // Check if the object is new or previously detected
+            
             if (fusionSlam.isNewObject(obj)) {
                 fusionSlam.addObjectToMap(obj);
             } else {
                 fusionSlam.updateObjectInMap(obj);
             }
         }
-        System.out.println("xxxxxxxxxxxxx"+ fusionSlam.getLandmarks().toString());
      });
     }
 }

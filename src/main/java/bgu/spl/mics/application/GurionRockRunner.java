@@ -61,14 +61,9 @@ public class GurionRockRunner {
         Map<String, List<StampedDetectedObjects>> cameraData = new HashMap<>();
 
         if (args.length == 0) {
-/*
-            System.out.println("Usage: java Main <path_to_configuration_file>");
-            return;
-*/
             args = new String[1];
-            args[0] = "example input/configuration_file.json";  // change before submission!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            args[0] = "example input\\configuration_file.json";  // change before submission!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         }
-
         String configFilePath = args[0];
         try {
             Gson gson = new Gson();
@@ -90,6 +85,7 @@ public class GurionRockRunner {
             //load other jsons and start the simulation
             String poseJsonFilePath = getFullJsonFilePath(configFilePath, config.poseJsonFile);
             List<Pose> poses = loadPoseData(poseJsonFilePath);
+            System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n" + poses);
             String lidarJsonFilePath = getFullJsonFilePath(configFilePath, config.getLidars_data_path());
             List<StampedCloudPoints> lidarData = loadLidarData(lidarJsonFilePath);
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -178,10 +174,11 @@ public class GurionRockRunner {
             //create fusion slam service
             FusionSlam fusionSlam = FusionSlam.getInstance();
             fusionSlam.setPoses(poses);
+            System.out.println("#######################################################\n"+ poses);
             FusionSlamService fusionSlamService = new FusionSlamService(fusionSlam);
 
             //create time service
-            TimeService timeService = new TimeService(config.TickTime, config.Duration);
+            TimeService timeService = new TimeService(config.TickTime, config.Duration, configFilePath);
 
             //start the program
             List<MicroService> services = new ArrayList<>();
@@ -222,9 +219,9 @@ public class GurionRockRunner {
     // Helper method to load and parse the pose JSON file
     private static List<Pose> loadPoseData(String poseJsonFilePath) {
         try {
+
             Gson gson = new Gson();
             FileReader reader = new FileReader(poseJsonFilePath);
-
             // Define the type for the Pose list
             Type poseListType = new TypeToken<List<Pose>>() {
             }.getType();
@@ -339,6 +336,5 @@ public class GurionRockRunner {
             System.err.println("Unexpected error: " + e.getMessage());
         }
         return cameraDataMap;
-
     }
 }

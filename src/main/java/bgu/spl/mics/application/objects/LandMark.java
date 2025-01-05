@@ -18,6 +18,12 @@ public class LandMark {
         this.coordinates = new ArrayList<>();
     }
 
+    public LandMark(String id, String description, List<CloudPoint> coordinates) {
+        this.id = id;
+        this.description = description;
+        this.coordinates = coordinates;
+    }
+
     public void addCoordinate(CloudPoint coordinate) {
         coordinates.add(coordinate);
     }

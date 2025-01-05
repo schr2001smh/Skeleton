@@ -3,6 +3,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.List;
 import java.util.ArrayList;
 
+import bgu.spl.mics.application.messages.DetectObjectsEvent;
+import bgu.spl.mics.application.messages.TrackedObjectsEvent;
+import bgu.spl.mics.example.messages.*;
+//icesv import bgu.spl.mics.example.events.DetectObjectsEvent;
 /**
  * The {@link MessageBusImpl class is the implementation of the MessageBus interface.
  * Write your implementation here!
@@ -17,6 +21,8 @@ public class MessageBusImpl implements MessageBus {
 	private ConcurrentHashMap<Class<? extends Event<?>>, Integer> roundRobinMap= new ConcurrentHashMap<>();
 	private int roundRobinCounter=0;
 	private int counter=0;
+	private int numTrackedObjects=0;
+	private int numDetectedObjects=0;
 	
 	private static class SingletonHolder {
 		private static final MessageBusImpl instance = new MessageBusImpl();
@@ -67,13 +73,24 @@ public class MessageBusImpl implements MessageBus {
 
 	}
 
-	
+	public int getNumTrackedObjects() {
+		return numTrackedObjects;
+	}
+	public int getNumDetectedObjects() {
+		return numDetectedObjects;
+	}
 	@Override
 	public   <T> Future<T> sendEvent(Event<T> e) {
 		if(roundRobinMap.get((Class<? extends Event<?>>) e.getClass())==null)
 			roundRobinMap.put((Class<? extends Event<?>>) e.getClass(), 0);
 		roundRobinCounter=roundRobinMap.get(e.getClass());
 		counter=0;
+		if (e.getClass().equals(DetectObjectsEvent.class)) {
+			numDetectedObjects += ((DetectObjectsEvent)e).getStampedDetectObjects().getDetectedObjects().size();
+		} else if (e.getClass().equals(TrackedObjectsEvent.class)) {
+			numTrackedObjects += ((TrackedObjectsEvent)e).getTrackedObjectsEvent().size();
+			
+		}
 		Future<T> future = new Future<>();
 		if (!eventMap.containsKey(e.getClass())) {
 			future.resolve(null);

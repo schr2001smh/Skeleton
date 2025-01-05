@@ -41,8 +41,10 @@ public class FusionSlam {
            return null;
        }
        else {
-        System.err.println("at time " + tick + "i think my pose is poses.get(tick) \n" + poses.get(tick -1));
-           return poses.get(tick -1);
+        System.err.println("at time " + tick + " -1 i think my pose is poses.get(tick -1) \n" + poses.get(tick-1));
+           return poses.get(tick-1);
+           
+           
        }
     }
 
@@ -52,6 +54,7 @@ public class FusionSlam {
 
     public void addObjectToMap(TrackedObject obj) {
         map.put(obj.getId(), obj);
+        landmarks.add(new LandMark(obj.getId(), obj.getDescription(), obj.getCoordinates()));
     }
 
     public void updateObjectInMap(TrackedObject obj) {

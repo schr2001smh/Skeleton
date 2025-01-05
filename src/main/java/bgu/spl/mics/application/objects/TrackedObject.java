@@ -23,6 +23,9 @@ public class TrackedObject {
     public String getId() {
         return id;
     }
+    public String getDescription() {
+        return description;
+    }
     public int getTime(){
         return time;
     }
@@ -58,9 +61,8 @@ public class TrackedObject {
         this.time = newData.time;
         this.description = newData.description;
         int Max=Math.max(newData.coordinates.size(), this.coordinates.size());
-
         for (int i = 0; i < Max; i++) {
-            if (i<this.coordinates.size()) {
+            if (i<this.coordinates.size()-1) {
                 CloudPoint oldPoint = this.coordinates.get(i);
                 CloudPoint newPoint = newData.coordinates.get(i);
                 double avgX = (oldPoint.getX() + newPoint.getX()) / 2;
@@ -71,10 +73,9 @@ public class TrackedObject {
             else{
                 this.coordinates.add(newData.coordinates.get(i));
             }
-           System.out.println("updated data \n" + this + 
-           "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1\n");
-            
         }
+        System.out.println("updated data \n" + this + 
+        "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1\n");
         
     }
     @Override
