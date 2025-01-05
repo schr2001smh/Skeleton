@@ -95,7 +95,7 @@ public class LiDarService extends MicroService {
             }
             
          sendEvent(new TrackedObjectsEvent(trackedObjectsList));
-            System.out.println(trackedObjectsList+"Meaning it sends good coordinates");
+           // System.out.println(trackedObjectsList+"Meaning it sends good coordinates");
 
       
         }

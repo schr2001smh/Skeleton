@@ -15,6 +15,7 @@ public class FusionSlam {
     private List<Pose> poses;
     private Map<String, TrackedObject> map;
     private Pose currentPose;
+    
 
     // Private constructor to prevent instantiation
     private FusionSlam() {
@@ -35,11 +36,12 @@ public class FusionSlam {
     }
 
     public Pose getCurrentPose(int tick) {
-       if (tick >= poses.size()) {
+       if (tick > poses.size()) {
            return null;
        }
        else {
-           return poses.get(tick);
+        System.err.println("time is= " + tick +"i think my pose is poses.get(tick)" + poses.get(tick -1));
+           return poses.get(tick -1);
        }
     }
 

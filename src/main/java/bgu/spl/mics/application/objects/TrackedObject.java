@@ -37,7 +37,11 @@ public class TrackedObject {
     }
 
     public void transformToCoordinateSystem(Pose pose) {
-        
+        for (CloudPoint point : coordinates) {
+            point.setX(point.getX() + pose.getX());
+            point.setY(point.getY() + pose.getY());
+        }
+        System.out.println("after current pose calcs \n" + coordinates);
     }
 
     public void updateWithNewData(TrackedObject newData) {
@@ -55,7 +59,7 @@ public class TrackedObject {
             oldPoint.setX(avgX);
             oldPoint.setY(avgY);
         }
-        System.out.println("Updated TrackedObject: "+ this);
+        System.out.println("Updated TrackedObject: \n "+ this+ "\n");
     }
     @Override
     public String toString() {
