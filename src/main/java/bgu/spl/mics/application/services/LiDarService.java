@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
+import bgu.spl.mics.ErrorOutput;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
@@ -55,66 +56,62 @@ public class LiDarService extends MicroService {
     @Override
     protected void initialize() {
 
-       System.out.println("lidarservice started");
-      
-
        subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
             lasttime = this.time;
             this.time = brod.getTick();
             for(int i=0;i<this.time;i++)
             {
                 if (trackedMap.containsKey(i)) {
-                 //sendEvent(new TrackedObjectsEvent(trackedMap.get(i),LiDarWorkerTracker.getFrequency()));
                     trackedMap.remove(i);
+                }
+            }
+            // Check for objects with id "ERROR"
+            for (List<TrackedObject> trackedObjects : trackedMap.values()) {
+                for (TrackedObject trackedObject : trackedObjects) {
+                    if ("ERROR".equals(trackedObject.getId())) {
+                        sendBroadcast(new CrashedBroadcast(this.getName()));
+                        return;
+                    }
                 }
             }
        });
 
        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
-        System.out.println(getName()+" detected "+brod.getSenderName()+"terminated");
-        System.out.println("lidar terminated");
         terminate();
        });
 
        subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast brod) -> {
-        System.out.println(getName() + "  detected  " + brod.getSenderName() + "crashed");
-        terminate();
-     });
+            ErrorOutput errorOutput = ErrorOutput.getInstance();
+            errorOutput.setError(getName());
+            errorOutput.setFaultySensor("LiDarWorkerTracker" + LiDarWorkerTracker.getId());
+            errorOutput.generateOutputJson();
+            terminate();
+       });
     
 
      subscribeEvent(DetectObjectsEvent.class, (DetectObjectsEvent e) -> {
-
+        ErrorOutput errorOutput = ErrorOutput.getInstance();
         StampedDetectedObjects objects = e.getStampedDetectObjects();
         int time = objects.getTime();
         List<DetectedObject> detectedObjects = objects.getDetectedObjects();
-
-        for (DetectedObject detectedObject : detectedObjects) {
-           List<List<Double>> cloudPointsList = dataBase.getcloudpoints(time,lasttime,detectedObject.getId());
-
-           List<TrackedObject> trackedObjectsList = new ArrayList<>();
-
-           if(cloudPointsList!=null)
-           {
-            TrackedObject trackedObjects = new TrackedObject(getName(), time, getName(), null);
-            List<CloudPoint> cloudPointObjects = new ArrayList<>();
-
+        synchronized (trackedMap) {
+            for (DetectedObject detectedObject : detectedObjects) {
+            List<List<Double>> cloudPointsList = dataBase.getcloudpoints(time, lasttime, detectedObject.getId());
+            List<TrackedObject> trackedObjectsList = new ArrayList<>();
+            if (cloudPointsList != null) {
+                TrackedObject trackedObjects = new TrackedObject(getName(), time, getName(), null);
+                List<CloudPoint> cloudPointObjects = new ArrayList<>();
                 for (List<Double> cloudPoints : cloudPointsList) {
-                    cloudPointObjects.add(new CloudPoint(cloudPoints.get(0), cloudPoints.get(1)));   
-                }  
+                cloudPointObjects.add(new CloudPoint(cloudPoints.get(0), cloudPoints.get(1)));
+                }
                 trackedObjects = new TrackedObject(detectedObject.getId(), time, detectedObject.getDescription(), cloudPointObjects);
-                if(!trackedObjectsList.contains(trackedObjects)) {
-                        
-                    trackedObjectsList.add(trackedObjects);
-                } 
-
+                if (!trackedObjectsList.contains(trackedObjects)) {
+                trackedObjectsList.add(trackedObjects);
+                }
             }
-            
-            trackedMap.put(time + LiDarWorkerTracker.getFrequency(), trackedObjectsList);
-          sendEvent(new TrackedObjectsEvent(trackedObjectsList,LiDarWorkerTracker.getFrequency()));
-        
-           // System.out.println(trackedObjectsList+"Meaning it sends good coordinates");
-
-      
+            System.out.println("LiDarService: " + getName() + " detected object: " + detectedObject.getId() + " at time: " + time);
+            sendEvent(new TrackedObjectsEvent(trackedObjectsList, LiDarWorkerTracker.getFrequency()));
+            }
         }
      });
     //     public TrackedObject(String id, int time, String description,List<CloudPoint> coordinates) {
@@ -124,4 +121,5 @@ public class LiDarService extends MicroService {
     //     this.coordinates = coordinates;
     // }
     }
+
 }

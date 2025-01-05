@@ -69,6 +69,10 @@ public class Camera {
     public List<StampedDetectedObjects> getstaStampedDetectedObjects(){
         return detectedObjectsList;
     }
+
+    public String getCamera_key(){
+        return camera_key;
+    }
     
     @Override
     public String toString() {

@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 import java.util.List;
 
+import bgu.spl.mics.ErrorOutput;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
@@ -44,7 +45,6 @@ public class FusionSlamService extends MicroService {
      */
     @Override
     protected void initialize() {
-        System.out.println("FusionSlamService started");
 
        subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
           this.tick = brod.getTick();
@@ -52,24 +52,24 @@ public class FusionSlamService extends MicroService {
        });
 
        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
-        System.out.println(getName()+" detected "+brod.getSenderName()+"terminated");
         terminate();
        });
 
        subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast brod) -> {
-        System.out.println(getName() + "  detected  " + brod.getSenderName() + "crashed");
         terminate();
      });
 
      subscribeEvent(TrackedObjectsEvent.class, (TrackedObjectsEvent event) -> {
         List<TrackedObject> objects = event.getTrackedObjectsEvent();
-       
+
+        ErrorOutput errorOutput = ErrorOutput.getInstance();
+        errorOutput.addLastLiDarWorkerTrackersFrame("LiDarWorkerTracker" + objects.get(0).getId(), objects);
 
         for (TrackedObject obj : objects) {
             // Transform the cloud points to the charging station's coordinate system using the current pose
             obj.transformToCoordinateSystem(fusionSlam.getCurrentPose( obj.getTime() - event.getFrequency() ));
             // Check if the object is new or previously detected
-            
+             
             if (fusionSlam.isNewObject(obj)) {
                 fusionSlam.addObjectToMap(obj);
             } else {

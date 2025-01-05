@@ -34,6 +34,8 @@ public class TimeService extends MicroService {
         this.TickTime = TickTime;
         this.Duration = Duration;
         this.filePath = filePath;
+        Output output = new Output();
+        output.getInstance(filePath);
     }
 
     /**
@@ -42,9 +44,8 @@ public class TimeService extends MicroService {
      */
     @Override
     protected void initialize() {
-        System.out.println("TimeService started:  ticktime= "+ TickTime + " duration =" + Duration);
+        
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
-            System.out.println("time service see that services online" + messageBus.getServiceCounter());
         if (messageBus.getServiceCounter()<=2) {
             generateOutput();
             terminate();
@@ -53,27 +54,23 @@ public class TimeService extends MicroService {
 
        });
        subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast brod) -> {
-         generateOutput();
-           terminate=true;
-            terminate();
-
+        terminate();
+        terminate=true;
      });
-
-        // while (StartTime < Duration && !terminate) {
-        //      sendBroadcast(new TickBroadcast(StartTime));
-        //      System.out.println(StartTime);
-        //      StartTime=StartTime+TickTime;
-        //      try {
-        //          Thread.sleep(TickTime * 1000); // 
-        //      } catch (InterruptedException e) {
-        //          e.printStackTrace();
-        //      }
-        // }
         
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
+            Output output = Output.getInstance();
+            output.setSystemRuntime(StartTime -1 );
+            FusionSlam fusion = FusionSlam.getInstance();
+            output.setNumLandmarks(fusion.getLandmarks().size());
+            output.setLandmarks(fusion.getLandmarks().toArray());
+            output.setNumTrackedObjects(messageBus.getNumTrackedObjects());
+            output.setNumDetectedObjects(messageBus.getNumDetectedObjects());
+
             if (!terminate) {
                 sendBroadcast(new TickBroadcast(StartTime));
                 System.out.println(StartTime);
+                
                 StartTime=StartTime+TickTime;
                 try {
                     Thread.sleep(TickTime * 1000); // 
@@ -90,20 +87,15 @@ public class TimeService extends MicroService {
        sendBroadcast(new TickBroadcast(0));
     }
 
-    public void setFilePath(String filepath){
+    public void setFilePath(String filePath){
         this.filePath=filePath;
     }
     
     private void generateOutput() {
+        
         Output output = new Output();
         // Set the necessary fields for the output instance
-        output.setSystemRuntime(StartTime -1 );
-        FusionSlam fusion = FusionSlam.getInstance();
-        System.out.println("fusion: " + fusion.getLandmarks());
-        output.setNumLandmarks(fusion.getLandmarks().size());
-        output.setLandmarks(fusion.getLandmarks().toArray());
-        output.setNumTrackedObjects(messageBus.getNumTrackedObjects());
-        output.setNumDetectedObjects(messageBus.getNumDetectedObjects());
+        
         
         // ...set other fields as needed...
         output.generateOutputJson(filePath.substring(0, filePath.lastIndexOf('\\')));

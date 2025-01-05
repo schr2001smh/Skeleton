@@ -1,8 +1,10 @@
 package bgu.spl.mics;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import bgu.spl.mics.application.objects.Pose;
+import bgu.spl.mics.application.objects.TrackedObject;
 
 import com.google.gson.Gson;
 import java.io.FileWriter;
@@ -12,12 +14,13 @@ public class ErrorOutput {
   private String error;
   private String faultySensor;
   private Map<String, Object> lastCamerasFrame;
-  private Map<String, Object> lastLiDarWorkerTrackersFrame;
+  private Map<String, List<TrackedObject>> lastLiDarWorkerTrackersFrame;
   private List<Pose> poses;
   private Output statistics = Output.getInstance();
 
-  public void generateOutputJson(String filePath) {
+  public void generateOutputJson() {
     Gson gson = new Gson();
+    String filePath = statistics.getFilePath().substring(0, statistics.getFilePath().lastIndexOf("\\"));
     try (FileWriter writer = new FileWriter(filePath + "\\.\\output_file.json")) {
         gson.toJson(this, writer);
     } catch (IOException e) {
@@ -33,12 +36,13 @@ public class ErrorOutput {
     this.faultySensor = faultySensor;
   }
 
-  public void setLastCamerasFrame(Map<String, Object> lastCamerasFrame) {
-    this.lastCamerasFrame = lastCamerasFrame;
+  public void addLastCamerasFrame(String camera, Object frame) {
+    this.lastCamerasFrame.put(camera, frame);
   }
 
-  public void setLastLiDarWorkerTrackersFrame(Map<String, Object> lastLiDarWorkerTrackersFrame) {
-    this.lastLiDarWorkerTrackersFrame = lastLiDarWorkerTrackersFrame;
+  public void addLastLiDarWorkerTrackersFrame(String key, List<TrackedObject> obj) {
+    System.out.println(this.lastLiDarWorkerTrackersFrame);
+    this.lastLiDarWorkerTrackersFrame.put(key, obj);
   }
 
   public void setPoses(List<Pose> poses) {
@@ -49,8 +53,14 @@ public class ErrorOutput {
     private static final ErrorOutput instance = new ErrorOutput();
   }
 
+  public static ErrorOutput getInstance() {
+    return ErrorOutputHolder.instance;
+  }
+
   private ErrorOutput() {
     statistics = Output.getInstance();
+    lastCamerasFrame = new HashMap<>();
+    lastLiDarWorkerTrackersFrame = new HashMap<>();
   }
 }
 

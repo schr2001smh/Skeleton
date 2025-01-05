@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 import java.util.List;
 
+import bgu.spl.mics.ErrorOutput;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
@@ -43,13 +44,15 @@ public class CameraService extends MicroService {
     @Override
     protected void initialize() {
         objects=camera.getstaStampedDetectedObjects();
-       System.out.println("CameraService started");
 
        subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
            lasttime = time;
            this.time = brod.getTick();
 
           List<StampedDetectedObjects> list = camera.objectsDuringTime(lasttime, time);
+          ErrorOutput output = ErrorOutput.getInstance();
+          if (!list.isEmpty() && !list.get(0).getDetectedObjects().get(0).getId().equals("ERROR"))
+            output.addLastCamerasFrame("Camera" + camera.getId(), list);
 
             if (!list.isEmpty()&& lasttime>=0) {
                 try {
@@ -58,7 +61,14 @@ public class CameraService extends MicroService {
                     e.printStackTrace();
                 }
                 for (StampedDetectedObjects obj : list) {
-                    sendEvent(new DetectObjectsEvent(obj));
+                    System.out.println(obj.getDetectedObjects().get(0).getId());
+                    String id = obj.getDetectedObjects().get(0).getId();
+                    if (id.equals("ERROR")) {
+                        System.out.println("Camera Crashed after IF");
+                        sendBroadcast(new CrashedBroadcast(this.getName()));
+                    }
+                    else
+                        sendEvent(new DetectObjectsEvent(obj));
                 }
             }
             if (list.isEmpty()&& camera.objectsDuringTime(lasttime, time+50).isEmpty()) {
@@ -71,12 +81,16 @@ public class CameraService extends MicroService {
        });
 
        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
-        System.out.println(getName()+" detected "+brod.getSenderName()+"terminated");
         terminate();
        });
 
        subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast brod) -> {
-        System.out.println(getName() + "  detected  " + brod.getSenderName() + "crashed");
+        ErrorOutput output = ErrorOutput.getInstance();
+        System.out.println("Camera Crashed");
+        output.setError("Camera Crashed");
+        output.setFaultySensor("Camera" + camera.getId());
+        
+        output.generateOutputJson();
         terminate();
      });
     }

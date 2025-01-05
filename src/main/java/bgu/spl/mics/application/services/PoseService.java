@@ -32,13 +32,11 @@ public class PoseService extends MicroService {
     @Override
     protected void initialize() {
         
-         System.out.println("CameraService started");
 
        subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
           this.tick = brod.getTick();
           if (messageBus.getServiceCounter()<=2) {
             terminate();
-            System.out.println("services online this is pose" + messageBus.getServiceCounter());
         }
        });
 
@@ -49,7 +47,6 @@ public class PoseService extends MicroService {
         
        });
      subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast brod) -> {
-        System.out.println(getName() + "  detected  " + brod.getSenderName() + "crashed");
         terminate();
      });
     }

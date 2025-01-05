@@ -18,6 +18,7 @@ public class Output {
     private int numTrackedObjects;
     private int numLandmarks;
     private Object[] landmarks;
+    String filePath;
 
     public void generateOutputJson(String filePath) {
         Gson gson = new GsonBuilder()
@@ -45,8 +46,17 @@ public class Output {
         private static final Output instance = new Output();
     }
 
+    public static Output getInstance(String filePath) {
+        OutputHolder.instance.filePath = filePath;
+        return OutputHolder.instance;
+    }
+
     public static Output getInstance() {
         return OutputHolder.instance;
+    }
+
+    public String getFilePath() {
+        return filePath;
     }
 
     public void setSystemRuntime(int systemRuntime) {

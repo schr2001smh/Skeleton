@@ -19,8 +19,6 @@ public class ExampleManager {
         Scanner sc = new Scanner(System.in);
         boolean quit = false;
         try {
-            System.out.println("Example manager is started - supported commands are: start,quit");
-            System.out.println("Supporting services: " + serviceCreators.keySet());
             while (!quit) {
 
                 String line = sc.nextLine();
@@ -41,7 +39,7 @@ public class ExampleManager {
 
                                 new Thread(creator.create(params[2], Arrays.copyOfRange(params, 3, params.length))).start();
                             } catch (IllegalArgumentException ex) {
-                                System.out.println("Error: " + ex.getMessage());
+                               
                             }
 
                             break;
@@ -52,10 +50,8 @@ public class ExampleManager {
                 }
             }
         } catch (Throwable t) {
-            System.err.println("Unexpected Error!!!!");
             t.printStackTrace();
         } finally {
-            System.out.println("Manager Terminating - UNGRACEFULLY!");
             sc.close();
             System.exit(0);
         }
