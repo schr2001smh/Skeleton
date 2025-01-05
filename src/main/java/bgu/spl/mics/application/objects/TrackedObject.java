@@ -74,8 +74,6 @@ public class TrackedObject {
                 this.coordinates.add(newData.coordinates.get(i));
             }
         }
-        System.out.println("updated data \n" + this + 
-        "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1\n");
         
     }
     @Override

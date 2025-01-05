@@ -23,9 +23,13 @@ public class MessageBusImpl implements MessageBus {
 	private int counter=0;
 	private int numTrackedObjects=0;
 	private int numDetectedObjects=0;
+	private int servicecounter=0;
 	
 	private static class SingletonHolder {
 		private static final MessageBusImpl instance = new MessageBusImpl();
+	}
+	public int getServiceCounter() {
+		return servicecounter;
 	}
 
 	private MessageBusImpl() {
@@ -72,6 +76,7 @@ public class MessageBusImpl implements MessageBus {
 		});
 
 	}
+	
 
 	public int getNumTrackedObjects() {
 		return numTrackedObjects;
@@ -115,16 +120,20 @@ public class MessageBusImpl implements MessageBus {
 
 	@Override
 	public synchronized void register(MicroService m) {
+		servicecounter++;
+		System.out.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO " + servicecounter);
 		if (!microserviceMap.containsKey(m))
 			microserviceMap.put(m, new ArrayList<Message>());
 	}
 
 	@Override
-	public void unregister(MicroService m) {
-		// need to spread the list to other microservices
+	public synchronized void unregister(MicroService m) {
+		servicecounter--;
+		System.out.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO " + servicecounter);
 		eventMap.values().forEach(l -> l.remove(m));
 		broadcastMap.values().forEach(l -> l.remove(m));
 		microserviceMap.remove(m);
+		
 
 	}
 

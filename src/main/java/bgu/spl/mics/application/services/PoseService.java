@@ -1,8 +1,10 @@
 package bgu.spl.mics.application.services;
 
 import bgu.spl.mics.application.messages.CrashedBroadcast;
+import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.GPSIMU;
+import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
 
 /**
@@ -12,6 +14,7 @@ import bgu.spl.mics.MicroService;
 public class PoseService extends MicroService {
     private GPSIMU gpsimu;
     private int tick;
+    private MessageBusImpl messageBus = MessageBusImpl.getInstance();
     /**
      * Constructor for PoseService.
      *
@@ -28,11 +31,23 @@ public class PoseService extends MicroService {
      */
     @Override
     protected void initialize() {
-               System.out.println("CameraService started");
+        
+         System.out.println("CameraService started");
+
        subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
           this.tick = brod.getTick();
+          if (messageBus.getServiceCounter()<=2) {
+            terminate();
+            System.out.println("services online this is pose" + messageBus.getServiceCounter());
+        }
        });
 
+       subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
+        if (messageBus.getServiceCounter()<=2) {
+            terminate();
+        }
+        
+       });
      subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast brod) -> {
         System.out.println(getName() + "  detected  " + brod.getSenderName() + "crashed");
         terminate();

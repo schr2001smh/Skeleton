@@ -1,6 +1,8 @@
 package bgu.spl.mics.application.services;
 import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.application.messages.CrashedBroadcast;
+import bgu.spl.mics.application.messages.TerminatedBroadcast;
 import bgu.spl.mics.application.messages.TickBroadcast;
 import bgu.spl.mics.application.objects.FusionSlam;
 import bgu.spl.mics.application.objects.LandMark;
@@ -17,6 +19,8 @@ public class TimeService extends MicroService {
     private int Duration;
     private int StartTime = 0;
     private String filePath;
+    public boolean terminate = false;
+    MessageBusImpl messageBus = MessageBusImpl.getInstance();
 
 
     /**
@@ -39,36 +43,65 @@ public class TimeService extends MicroService {
     @Override
     protected void initialize() {
         System.out.println("TimeService started:  ticktime= "+ TickTime + " duration =" + Duration);
-        while (StartTime < Duration) {
-             sendBroadcast(new TickBroadcast(StartTime));
-             System.out.println(StartTime);
-             StartTime=StartTime+TickTime;
-             
-             
-             try {
-                 Thread.sleep(TickTime * 1000); // 
-             } catch (InterruptedException e) {
-                 e.printStackTrace();
-             }
+        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
+            System.out.println("time service see that services online" + messageBus.getServiceCounter());
+        if (messageBus.getServiceCounter()<=2) {
+            generateOutput();
+            terminate();
+            terminate=true;
         }
-        terminate();
-        generateOutput();
+
+       });
+       subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast brod) -> {
+         generateOutput();
+           terminate=true;
+            terminate();
+
+     });
+
+        // while (StartTime < Duration && !terminate) {
+        //      sendBroadcast(new TickBroadcast(StartTime));
+        //      System.out.println(StartTime);
+        //      StartTime=StartTime+TickTime;
+        //      try {
+        //          Thread.sleep(TickTime * 1000); // 
+        //      } catch (InterruptedException e) {
+        //          e.printStackTrace();
+        //      }
+        // }
         
+        subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
+            if (!terminate) {
+                sendBroadcast(new TickBroadcast(StartTime));
+                System.out.println(StartTime);
+                StartTime=StartTime+TickTime;
+                try {
+                    Thread.sleep(TickTime * 1000); // 
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                generateOutput();
+                terminate();
+            }
+       });
+
+       sendBroadcast(new TickBroadcast(0));
     }
 
     public void setFilePath(String filepath){
         this.filePath=filePath;
     }
+    
     private void generateOutput() {
         Output output = new Output();
         // Set the necessary fields for the output instance
-        output.setSystemRuntime(Duration);
+        output.setSystemRuntime(StartTime -1 );
         FusionSlam fusion = FusionSlam.getInstance();
         System.out.println("fusion: " + fusion.getLandmarks());
         output.setNumLandmarks(fusion.getLandmarks().size());
         output.setLandmarks(fusion.getLandmarks().toArray());
-
-        MessageBusImpl messageBus = MessageBusImpl.getInstance();
         output.setNumTrackedObjects(messageBus.getNumTrackedObjects());
         output.setNumDetectedObjects(messageBus.getNumDetectedObjects());
         
