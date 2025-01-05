@@ -6,9 +6,16 @@ import bgu.spl.mics.Event;
 
 public class TrackedObjectsEvent implements Event<TrackedObject[]> {
     List<TrackedObject> objects;
+    int frequency;
 
-    public TrackedObjectsEvent(List<TrackedObject> objects){
+    public TrackedObjectsEvent(List<TrackedObject> objects,int frequency){
         this.objects=objects;
+        this.frequency=frequency;
+    }
+
+    public int getFrequency()
+    {
+        return frequency;
     }
     
     public List<TrackedObject> getTrackedObjectsEvent(){

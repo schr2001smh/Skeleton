@@ -99,7 +99,7 @@ public class LiDarService extends MicroService {
                 } 
             }
             
-         sendEvent(new TrackedObjectsEvent(trackedObjectsList));
+         sendEvent(new TrackedObjectsEvent(trackedObjectsList,LiDarWorkerTracker.getFrequency()));
         
            // System.out.println(trackedObjectsList+"Meaning it sends good coordinates");
 

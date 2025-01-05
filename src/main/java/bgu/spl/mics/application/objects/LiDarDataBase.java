@@ -51,8 +51,8 @@ public class LiDarDataBase {
     public   List<List<Double>> getcloudpoints(int time,int lasttime, String id){
         for (StampedCloudPoints stampedCloudPoints : cloudPoints) {
             if (stampedCloudPoints.getTime() <= time && stampedCloudPoints.getTime() >= lasttime && stampedCloudPoints.getId().equals(id)) { 
-                System.out.println("database is thinking that the id is: "+stampedCloudPoints.getId() + " and the time is: " 
-                +stampedCloudPoints.getTime() + " and the cloud points are: "+stampedCloudPoints.getCloudPoints());
+                // System.out.println("database is thinking that the id is: "+stampedCloudPoints.getId() + " and the time is: " 
+                // +stampedCloudPoints.getTime() + " and the cloud points are: "+stampedCloudPoints.getCloudPoints());
                 return stampedCloudPoints.getCloudPoints();
             }
 

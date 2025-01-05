@@ -46,10 +46,10 @@ public class CameraService extends MicroService {
        System.out.println("CameraService started");
 
        subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
-           lasttime = time;
-           this.time = brod.getTick();
+           lasttime = time-camera.getFrequency();
+           this.time = brod.getTick() - camera.getFrequency();
           List<StampedDetectedObjects> list = camera.objectsDuringTime(lasttime, time);
-            if (!list.isEmpty()) {
+            if (!list.isEmpty()&& lasttime>=0) {
                 for (StampedDetectedObjects obj : list) {
                     
                     sendEvent(new DetectObjectsEvent(obj));
