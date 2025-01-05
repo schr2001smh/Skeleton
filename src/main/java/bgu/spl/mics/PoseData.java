@@ -1,8 +1,24 @@
 package bgu.spl.mics;
+import bgu.spl.mics.application.objects.Pose;
 
 public class PoseData {
-    public double x;
-    public double y;
-    public double yaw;
+    public Pose pose;
     public int time;
+
+    public PoseData(int time, Pose pose) {
+        this.time = time;
+        this.pose = pose;
+      }
+      public PoseData(){}; // For serialization
+
+      public void setPose(Pose pose) {
+        this.pose = pose;
+      }
+      @Override
+      public String toString() {
+        return "time=" + time +"\n"+
+         ", pose=" + pose + "}";
+      }
+    
 }
+

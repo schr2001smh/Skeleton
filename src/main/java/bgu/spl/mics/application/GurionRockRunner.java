@@ -23,6 +23,7 @@ import com.google.gson.reflect.TypeToken;
 import bgu.spl.mics.Configuration;
 import bgu.spl.mics.LiDarWorkers;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.PoseData;
 import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.DetectedObject;
 import bgu.spl.mics.application.objects.FusionSlam;
@@ -84,7 +85,25 @@ public class GurionRockRunner {
             
             //load other jsons and start the simulation
             String poseJsonFilePath = getFullJsonFilePath(configFilePath, config.poseJsonFile);
+
             List<Pose> poses = loadPoseData(poseJsonFilePath);
+
+            List<PoseData> poseData = new ArrayList<>();
+
+            try (FileReader reader2 = new FileReader(poseJsonFilePath)) {
+                Gson gson2 = new Gson();
+                Type poseDataType = new TypeToken<List<PoseData>>() {}.getType();
+                poseData = gson2.fromJson(reader2, poseDataType);
+                System.out.println("\n******Pose Data: " + poseData);
+            } catch (IOException e) {
+                System.err.println("Error reading or parsing the pose JSON file.");
+                e.printStackTrace();
+            }
+            for(int i=0; i<poseData.size(); i++){
+                poseData.get(i).setPose(poses.get(i));
+            }
+            System.out.println(poseData);
+            
             System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n" + poses);
             String lidarJsonFilePath = getFullJsonFilePath(configFilePath, config.getLidars_data_path());
             List<StampedCloudPoints> lidarData = loadLidarData(lidarJsonFilePath);
@@ -219,15 +238,11 @@ public class GurionRockRunner {
     // Helper method to load and parse the pose JSON file
     private static List<Pose> loadPoseData(String poseJsonFilePath) {
         try {
-
             Gson gson = new Gson();
             FileReader reader = new FileReader(poseJsonFilePath);
-            // Define the type for the Pose list
             Type poseListType = new TypeToken<List<Pose>>() {
             }.getType();
             List<Pose> poses = gson.fromJson(reader, poseListType);
-
-            // Print the loaded pose data
             System.out.println("\n******Pose Data: ");
             for (Pose pose : poses) {
                 System.out.println(pose);
@@ -238,7 +253,6 @@ public class GurionRockRunner {
         } catch (IOException e) {
             System.err.println("Error reading or parsing the pose JSON file.");
             e.printStackTrace();
-
         }
         return null;
     }
