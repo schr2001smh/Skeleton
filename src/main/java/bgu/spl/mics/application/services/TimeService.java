@@ -39,7 +39,7 @@ public class TimeService extends MicroService {
              
              
              try {
-                 Thread.sleep(TickTime * 2000); // 
+                 Thread.sleep(TickTime * 1000); // 
              } catch (InterruptedException e) {
                  e.printStackTrace();
              }

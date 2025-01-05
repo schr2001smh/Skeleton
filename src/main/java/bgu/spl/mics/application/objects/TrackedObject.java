@@ -55,6 +55,7 @@ public class TrackedObject {
             oldPoint.setX(avgX);
             oldPoint.setY(avgY);
         }
+        System.out.println("Updated TrackedObject: "+ this);
     }
     @Override
     public String toString() {

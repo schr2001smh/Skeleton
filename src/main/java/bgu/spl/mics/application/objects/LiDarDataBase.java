@@ -3,8 +3,8 @@ package bgu.spl.mics.application.objects;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -36,7 +36,6 @@ public class LiDarDataBase {
      */
     public static LiDarDataBase getInstance(String filePath) {
         LiDarDataBase instance = LiDarDataBaseHolder.INSTANCE;
-
       Gson g = new GsonBuilder().setPrettyPrinting().create();
       try (FileReader reader = new FileReader(filePath)) {
      Type employeeListType = new TypeToken<List<StampedCloudPoints>>(){}.getType();
@@ -44,23 +43,24 @@ public class LiDarDataBase {
      } catch (IOException e) {
      e.printStackTrace();
      }
-
         return instance;
     }
     public static LiDarDataBase getInstance() {
         return LiDarDataBaseHolder.INSTANCE;
     }
-    public synchronized  List<List<Double>> getcloudpoints(int time,int lasttime, String id){
+    public   List<List<Double>> getcloudpoints(int time,int lasttime, String id){
         for (StampedCloudPoints stampedCloudPoints : cloudPoints) {
-
-            if (stampedCloudPoints.getTime() <=time && stampedCloudPoints.getTime() >lasttime && stampedCloudPoints.getId().equals(id)) {
+            if (stampedCloudPoints.getTime() <= time && stampedCloudPoints.getTime() >= lasttime && stampedCloudPoints.getId().equals(id)) { 
+                System.out.println("database is thinking that the id is: "+stampedCloudPoints.getId() + " and the time is: " 
+                +stampedCloudPoints.getTime() + " and the cloud points are: "+stampedCloudPoints.getCloudPoints());
                 return stampedCloudPoints.getCloudPoints();
             }
+
         }
         return null;
     }
 
-    public synchronized List<DetectedObject> getDetectedObjects(int time) {
+    public  List<DetectedObject> getDetectedObjects(int time) {
         List<DetectedObject> detectedObjects = new ArrayList<>();
         for (StampedCloudPoints stampedCloudPoints : cloudPoints) {
             if (stampedCloudPoints.getTime() == time) {

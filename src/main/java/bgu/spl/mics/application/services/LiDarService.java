@@ -7,8 +7,8 @@ import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
 import bgu.spl.mics.application.messages.TerminatedBroadcast;
-import bgu.spl.mics.application.messages.TickBroadcast; // Ensure this class exists or remove if not needed
-import bgu.spl.mics.application.messages.TrackedObjectsEvent;
+import bgu.spl.mics.application.messages.TickBroadcast;
+import bgu.spl.mics.application.messages.TrackedObjectsEvent; // Ensure this class exists or remove if not needed
 import bgu.spl.mics.application.objects.CloudPoint;
 import bgu.spl.mics.application.objects.DetectedObject;
 import bgu.spl.mics.application.objects.LiDarDataBase;
@@ -53,29 +53,11 @@ public class LiDarService extends MicroService {
     protected void initialize() {
 
        System.out.println("lidarservice started");
+      
 
        subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
             lasttime = this.time;
             this.time = brod.getTick();
-            
-            // Call TrackedObjectsEvent each tick
-            List<DetectedObject> detectedObjects = dataBase.getDetectedObjects(time);
-            List<TrackedObject> trackedObjectsList = new ArrayList<>();
-            for (DetectedObject detectedObject : detectedObjects) {
-                List<List<Double>> cloudPointsList = dataBase.getcloudpoints(time, lasttime, detectedObject.getId());
-                if (cloudPointsList != null) {
-                    for (List<Double> cloudPoints : cloudPointsList) {
-                        List<CloudPoint> cloudPointObjects = new ArrayList<>();
-                        for (Double point : cloudPoints) {
-                            cloudPointObjects.add(new CloudPoint(point.intValue(), point.intValue()));
-                        }
-                        TrackedObject trackedObjects = new TrackedObject(detectedObject.getId(), time, detectedObject.getDescription(), cloudPointObjects);
-                        trackedObjectsList.add(trackedObjects);
-                    }
-                }
-            }
-            //System.out.println("TrackedObjectsEvent sent");
-            sendEvent(new TrackedObjectsEvent(trackedObjectsList));
        });
 
        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
@@ -88,33 +70,34 @@ public class LiDarService extends MicroService {
         terminate();
      });
     
+
      subscribeEvent(DetectObjectsEvent.class, (DetectObjectsEvent e) -> {
-        //System.out.println("LIDAR PRINTING " + LiDarWorkerTracker.toString());
         StampedDetectedObjects objects = e.getStampedDetectObjects();
         int time = objects.getTime();
         List<DetectedObject> detectedObjects = objects.getDetectedObjects();
-        // System.out.println("*******************************************************************");
-        // System.out.println(getName()+detectedObjects);
-        // System.out.println("*******************************************************************");
-
         for (DetectedObject detectedObject : detectedObjects) {
-           List<List<Double>> cloudPointsList =dataBase.getcloudpoints(time,lasttime,detectedObject.getId());
+           List<List<Double>> cloudPointsList = dataBase.getcloudpoints(time,lasttime,detectedObject.getId());
+
            List<TrackedObject> trackedObjectsList = new ArrayList<>();
-
            if(cloudPointsList!=null)
-            for (List<Double> cloudPoints : cloudPointsList) {
-                List<CloudPoint> cloudPointObjects = new ArrayList<>();
-                for (Double point : cloudPoints) {
-                    cloudPointObjects.add(new CloudPoint(point.intValue(), point.intValue()));
+           {
+                for (List<Double> cloudPoints : cloudPointsList) {
+                    List<CloudPoint> cloudPointObjects = new ArrayList<>();
+                    cloudPointObjects.add(new CloudPoint(cloudPoints.get(0), cloudPoints.get(1)));
                     
-                }
-                TrackedObject trackedObjects = new TrackedObject(detectedObject.getId(), time, detectedObject.getDescription(), cloudPointObjects);
-                if(!trackedObjectsList.contains(trackedObjects)) {
-                    trackedObjectsList.add(trackedObjects);
-                } 
+                    TrackedObject trackedObjects = new TrackedObject(detectedObject.getId(), time, detectedObject.getDescription(), cloudPointObjects);
+                    
+                    if(!trackedObjectsList.contains(trackedObjects)) {
+                        
+                        trackedObjectsList.add(trackedObjects);
+                    } 
                 }  
+            }
+            
+         sendEvent(new TrackedObjectsEvent(trackedObjectsList));
+            System.out.println(trackedObjectsList+"Meaning it sends good coordinates");
 
-      sendEvent(new TrackedObjectsEvent(trackedObjectsList));
+      
         }
      });
     //     public TrackedObject(String id, int time, String description,List<CloudPoint> coordinates) {

@@ -49,12 +49,10 @@ public class CameraService extends MicroService {
            lasttime = time;
            this.time = brod.getTick();
           List<StampedDetectedObjects> list = camera.objectsDuringTime(lasttime, time);
-          System.out.println(getName()+"TICK RECIVED CAMERA===== "+time);
             if (!list.isEmpty()) {
                 for (StampedDetectedObjects obj : list) {
                     
                     sendEvent(new DetectObjectsEvent(obj));
-                    System.out.println(getName() +obj );
                 }
             }
             

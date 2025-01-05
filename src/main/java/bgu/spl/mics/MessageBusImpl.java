@@ -14,6 +14,7 @@ public class MessageBusImpl implements MessageBus {
 	private ConcurrentHashMap<Class<? extends Broadcast>, List<MicroService>> broadcastMap=new ConcurrentHashMap<>();
 	private ConcurrentHashMap<MicroService, List<Message>> microserviceMap= new ConcurrentHashMap<>();
 	private ConcurrentHashMap<Event<?>, Future<?>> futureMap= new ConcurrentHashMap<>();
+	private ConcurrentHashMap<Class<? extends Event<?>>, Integer> roundRobinMap= new ConcurrentHashMap<>();
 	private int roundRobinCounter=0;
 	private int counter=0;
 	
@@ -32,8 +33,10 @@ public class MessageBusImpl implements MessageBus {
 	
 	@Override
 	public synchronized <T> void  subscribeEvent(Class<? extends Event<T>> type, MicroService m) {
-		if (!eventMap.containsKey(type))
+		if (!eventMap.containsKey(type)) {
 			eventMap.put(type, new ArrayList<MicroService>());
+			roundRobinMap.put(type, 0);
+		}
 		eventMap.get(type).add(m);
 	}
 
@@ -55,7 +58,7 @@ public class MessageBusImpl implements MessageBus {
 	}
 
 	@Override
-	public synchronized void sendBroadcast(Broadcast b) {
+	public  void sendBroadcast(Broadcast b) {
 		if (!broadcastMap.containsKey(b.getClass()))
 			return;
 		broadcastMap.get(b.getClass()).forEach(m -> {
@@ -66,7 +69,10 @@ public class MessageBusImpl implements MessageBus {
 
 	
 	@Override
-	public synchronized  <T> Future<T> sendEvent(Event<T> e) {
+	public   <T> Future<T> sendEvent(Event<T> e) {
+		if(roundRobinMap.get((Class<? extends Event<?>>) e.getClass())==null)
+			roundRobinMap.put((Class<? extends Event<?>>) e.getClass(), 0);
+		roundRobinCounter=roundRobinMap.get(e.getClass());
 		counter=0;
 		Future<T> future = new Future<>();
 		if (!eventMap.containsKey(e.getClass())) {
@@ -80,9 +86,8 @@ public class MessageBusImpl implements MessageBus {
 			if (counter == roundRobinCounter) {
 				microserviceMap.get(m).add(e);
 				futureMap.put(e, future);
-				//m.initialize();
-				//m.complete(e, future.get());
 				roundRobinCounter++;
+				roundRobinMap.put((Class<? extends Event<?>>) e.getClass(), roundRobinCounter);
 				break;
 			} else {
 				counter++;

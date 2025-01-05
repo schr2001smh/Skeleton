@@ -66,7 +66,7 @@ public class GurionRockRunner {
             return;
 */
             args = new String[1];
-            args[0] = "example_input_2/configuration_file.json";  // change before submission!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            args[0] = "example input/configuration_file.json";  // change before submission!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         }
 
         String configFilePath = args[0];
@@ -177,6 +177,7 @@ public class GurionRockRunner {
 
             //create fusion slam service
             FusionSlam fusionSlam = FusionSlam.getInstance();
+            fusionSlam.setPoses(poses);
             FusionSlamService fusionSlamService = new FusionSlamService(fusionSlam);
 
             //create time service
@@ -245,7 +246,6 @@ public class GurionRockRunner {
         return null;
     }
 
-    
 
     private static List<StampedCloudPoints> loadLidarData(String lidarJsonFilePath) {
         try {
@@ -259,8 +259,7 @@ public class GurionRockRunner {
             // Define the type for the StampedCloudPoints list
             Type lidarListType = new TypeToken<List<StampedCloudPoints>>() {
             }.getType();
-            List<StampedCloudPoints> lidarData = gson.fromJson(reader, lidarListType);
-
+            List<StampedCloudPoints> lidarData = gson.fromJson(reader, lidarListType); 
             // Print the loaded LiDAR data
             // System.out.println("\n******LiDAR Data: ");
             // for (StampedCloudPoints stampedCloudPoints : lidarData) {

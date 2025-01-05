@@ -17,6 +17,9 @@ public class StampedCloudPoints {
         this.id = id;
         this.cloudPoints = new ArrayList<>();
     }
+    public boolean contains(List<Double> cloudPoint){
+        return cloudPoints.contains(cloudPoint);
+    }
     public List<List<Double>> getCloudPoints(){
         return cloudPoints;
     }

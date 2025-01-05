@@ -34,8 +34,13 @@ public class FusionSlam {
         return FusionSlamHolder.INSTANCE;
     }
 
-    public Pose getCurrentPose() {
-        return currentPose;
+    public Pose getCurrentPose(int tick) {
+       if (tick >= poses.size()) {
+           return null;
+       }
+       else {
+           return poses.get(tick);
+       }
     }
 
     public boolean isNewObject(TrackedObject obj) {
@@ -73,5 +78,13 @@ public class FusionSlam {
 
     public void setMap(Map<String, TrackedObject> map) {
         this.map = map;
+    }
+    public String toString() {
+        return "FusionSlam{" +
+                "landmarks=" + landmarks +
+                ", poses=" + poses +
+                ", map=" + map +
+                ", currentPose=" + currentPose +
+                '}';
     }
 }

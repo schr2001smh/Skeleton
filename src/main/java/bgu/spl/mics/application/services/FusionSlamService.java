@@ -29,6 +29,13 @@ public class FusionSlamService extends MicroService {
         super("fusionslam");
         this.fusionSlam = fusionSlam;
     }
+    @Override
+    public String toString() {
+        return "FusionSlamService{" +
+                "tick=" + tick +
+                ", fusionSlam=" + fusionSlam +
+                '}';
+    }
 
     /**
      * Initializes the FusionSlamService.
@@ -55,13 +62,12 @@ public class FusionSlamService extends MicroService {
      });
 
      subscribeEvent(TrackedObjectsEvent.class, (TrackedObjectsEvent event) -> {
-
-
         List<TrackedObject> objects = event.getTrackedObjectsEvent();
-        
+        System.out.println("object is "+objects);
         for (TrackedObject obj : objects) {
+            
             // Transform the cloud points to the charging station's coordinate system using the current pose
-            obj.transformToCoordinateSystem(fusionSlam.getCurrentPose());
+            obj.transformToCoordinateSystem(fusionSlam.getCurrentPose(tick));
             // Check if the object is new or previously detected
             if (fusionSlam.isNewObject(obj)) {
                 fusionSlam.addObjectToMap(obj);
@@ -70,6 +76,7 @@ public class FusionSlamService extends MicroService {
                 fusionSlam.updateObjectInMap(obj);
             }
         }
+        System.out.println("xxxxxxxxxxxxx"+ fusionSlam.getLandmarks().toString());
      });
     }
 }
