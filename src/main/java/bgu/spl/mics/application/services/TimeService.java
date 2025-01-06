@@ -65,6 +65,7 @@ public class TimeService extends MicroService {
             if (!terminate) {
                 sendBroadcast(new TickBroadcast(StartTime, TickTime));
                 StartTime=StartTime+TickTime;
+                System.out.println(StartTime);
                 try {
                     Thread.sleep(TickTime * 1000); // 
                 } catch (InterruptedException e) {

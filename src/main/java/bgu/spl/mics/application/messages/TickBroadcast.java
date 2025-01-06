@@ -8,6 +8,7 @@ public class TickBroadcast implements Broadcast {
 
     public TickBroadcast(int currentTick, int TickTime) {
         this.currentTick = currentTick;
+        this.TickTime = TickTime;
     }
 
     public int getTick() {

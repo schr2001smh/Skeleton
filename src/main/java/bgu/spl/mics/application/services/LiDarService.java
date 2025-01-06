@@ -74,6 +74,16 @@ public class LiDarService extends MicroService {
                     trackedMap.remove(i);
                 }
             }
+
+            int i=this.time/ticktime;
+            if (i<lidardata.size() && lidardata.get(i).getId().equals("ERROR")) {
+                ErrorOutput output = ErrorOutput.getInstance();
+                output.setError(lidardata.get(i).getId());
+                 output.setFaultySensor(this.getName());
+               sendBroadcast(new CrashedBroadcast(this.getName()));
+               terminate();
+               System.out.println("LidarService "+this.getName()+" Crashed");
+            }
        });
 
        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
@@ -87,7 +97,7 @@ public class LiDarService extends MicroService {
 
      subscribeEvent(DetectObjectsEvent.class, (DetectObjectsEvent e) -> {
         int time = e.getStampedDetectObjects().getTime();
-    if (ticktime!=0&&!lidardata.get(time/ticktime).getId().equals("ERROR")) {
+    // if (ticktime!=0 && !lidardata.get(time/ticktime-2).getId().equals("ERROR")) {
         StampedDetectedObjects objects = e.getStampedDetectObjects();
         List<DetectedObject> detectedObjects = objects.getDetectedObjects();
         for (DetectedObject detectedObject : detectedObjects) {
@@ -111,16 +121,16 @@ public class LiDarService extends MicroService {
             trackedMap.put(time + LiDarWorkerTracker.getFrequency(), trackedObjectsList);
             sendEvent(new TrackedObjectsEvent(trackedObjectsList,LiDarWorkerTracker.getFrequency())); 
           }
-       }
-       else
-       {
+    //    }
+    //    else
+    //    {
 
-        ErrorOutput output = ErrorOutput.getInstance();
-        output.setError(lidardata.get( e.getStampedDetectObjects().getTime()).getId());
-        output.setFaultySensor(this.getName());
-        sendBroadcast(new CrashedBroadcast(this.getName()));
-        terminate();
-       }
+    //     ErrorOutput output = ErrorOutput.getInstance();
+    //     output.setError(lidardata.get( e.getStampedDetectObjects().getTime()).getId());
+    //     output.setFaultySensor(this.getName());
+    //     sendBroadcast(new CrashedBroadcast(this.getName()));
+    //     terminate();
+    //    }
      });
     //     public TrackedObject(String id, int time, String description,List<CloudPoint> coordinates) {
     //     this.id = id;
