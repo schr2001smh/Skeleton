@@ -51,7 +51,6 @@ public class TrackedObject {
             point.setX(x);
             point.setY(y);
         }
-       
     }
 
     public void updateWithNewData(TrackedObject newData) {

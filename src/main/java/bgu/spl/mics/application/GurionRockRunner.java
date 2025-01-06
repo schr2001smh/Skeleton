@@ -61,13 +61,14 @@ public class GurionRockRunner {
      * @param args Command-line arguments. The first argument is expected to be the path to the configuration file.
      */
     public static void main(String[] args) {
-        Map<String, List<StampedDetectedObjects>> cameraData = new HashMap<>();
 
-        if (args.length == 0) {
-            args = new String[1];
-            args[0] = "example_input_with_error\\configuration_file.json";  // change before submission!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if (args == null) {
+            System.err.println("No configuration file path provided.");   
         }
+        
+        Map<String, List<StampedDetectedObjects>> cameraData = new HashMap<>();
         String configFilePath = args[0];
+        
         try {
             Gson gson = new Gson();
             FileReader reader = new FileReader(configFilePath);
@@ -78,12 +79,6 @@ public class GurionRockRunner {
             Configuration config = gson.fromJson(reader, configType);
 
             // Print the loaded configuration data
-            System.out.println("Configuration: " + config);
-            System.out.println("Cameras: " + config.print_cameras());
-            System.out.println("Lidar Workers: " + config.print_lidars());
-            System.out.println("Pose JSON File: " + config.poseJsonFile);
-            System.out.println("Tick Time: " + config.TickTime);
-            System.out.println("Duration: " + config.Duration);
             
             //load other jsons and start the simulation
             String poseJsonFilePath = getFullJsonFilePath(configFilePath, config.poseJsonFile);
@@ -96,15 +91,12 @@ public class GurionRockRunner {
                 Gson gson2 = new Gson();
                 Type poseDataType = new TypeToken<List<PoseData>>() {}.getType();
                 poseData = gson2.fromJson(reader2, poseDataType);
-                System.out.println("\n******Pose Data: " + poseData);
             } catch (IOException e) {
-                System.err.println("Error reading or parsing the pose JSON file.");
                 e.printStackTrace();
             }
             for(int i=0; i<poseData.size(); i++){
                 poseData.get(i).setPose(poses.get(i));
             }
-            System.out.println(poseData);
             ErrorOutput errorOutput = ErrorOutput.getInstance();
             errorOutput.setPoses(poseData);
             errorOutput.setFilePath(configFilePath);
@@ -112,35 +104,19 @@ public class GurionRockRunner {
             Output output = Output.getInstance();
             output.setFilePath(configFilePath);
 
-            System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n" + poses);
             String lidarJsonFilePath = getFullJsonFilePath(configFilePath, config.getLidars_data_path());
             List<StampedCloudPoints> lidarData = loadLidarData(lidarJsonFilePath);
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            // System.out.println( lidarData);
 
             
             
             String cameraJsonFilePath = getFullJsonFilePath(configFilePath, config.getCamera_datas_path());
-            System.out.println("Camera JSON File: " + cameraJsonFilePath);
            
-            System.out.println("Camera Data: " + loadCameraData(cameraJsonFilePath));
             List<Camera> cameras = loadCameras(config, cameraJsonFilePath);
             //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            // System.out.println(cameras);
             
 
 
-            System.out.println("SUMMARY:"
-                    +"\nDuration: " + config.Duration + " seconds"
-                    +"\nTick Time: " + config.TickTime + " seconds");
-            for (Camera camera : cameras) {
-                System.out.println(camera);
-            }
-
-            System.out.println(config);
-            System.out.println("******");
-
-            System.out.println("******************************************************************************************************************");
             Gson g3 = new GsonBuilder().setPrettyPrinting().create();
 
             try (FileReader reader2 = new FileReader(getFullJsonFilePath(configFilePath, config.getCamera_datas_path()))) {
@@ -148,22 +124,15 @@ public class GurionRockRunner {
 
                 Type type = new TypeToken<Map<String, List<StampedDetectedObjects>>>() {}.getType();
                 cameraData = g3.fromJson(reader2, type);
-                System.out.println(cameraData);
 
                 // Iterate over all cameras and their data
                 for (Map.Entry<String, List<StampedDetectedObjects>> entry : cameraData.entrySet()) {
                     String cameraName = entry.getKey();
                     List<StampedDetectedObjects> detectedObjects = entry.getValue();
-                    System.out.println("Camera: " + cameraName);
-                    for (StampedDetectedObjects stampedDetectedObjects : detectedObjects) {
-                        System.out.println(stampedDetectedObjects);
-                    }
                 }
-                System.out.println("camera data have been loaded successfully");
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.println("******************************************************************************************************************");
             // initialize the services
 
 
@@ -193,7 +162,6 @@ public class GurionRockRunner {
             int counter = 0;
             for (Camera camera : cameras) {
                 counter++;
-                System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
                 camera.setstampedDetectedObjects(cameraData.get("camera"+camera.getId()));
                 cameraServices.add(new CameraService(camera));
                 
@@ -202,7 +170,6 @@ public class GurionRockRunner {
             //create fusion slam service
             FusionSlam fusionSlam = FusionSlam.getInstance();
             fusionSlam.setPoses(poses);
-            System.out.println("#######################################################\n"+ poses);
             FusionSlamService fusionSlamService = new FusionSlamService(fusionSlam);
 
             //create time service
@@ -221,10 +188,10 @@ public class GurionRockRunner {
 
 
         } catch (IOException e) {
-            System.err.println("Error reading or parsing the configuration file.");
             e.printStackTrace();
         }
     }
+
 
 
     private static void startServices(List<MicroService> services) {
@@ -234,6 +201,7 @@ public class GurionRockRunner {
             // executeService.submit(service);
         }
     }
+    
 
 
 
@@ -252,11 +220,6 @@ public class GurionRockRunner {
             Type poseListType = new TypeToken<List<Pose>>() {
             }.getType();
             List<Pose> poses = gson.fromJson(reader, poseListType);
-            System.out.println("\n******Pose Data: ");
-            for (Pose pose : poses) {
-                System.out.println(pose);
-            }
-            System.out.println("******");
             reader.close();
             return poses;
         } catch (IOException e) {
@@ -276,16 +239,9 @@ public class GurionRockRunner {
 
             FileReader reader = new FileReader(lidarJsonFilePath);
 
-            // Define the type for the StampedCloudPoints list
             Type lidarListType = new TypeToken<List<StampedCloudPoints>>() {
             }.getType();
             List<StampedCloudPoints> lidarData = gson.fromJson(reader, lidarListType); 
-            // Print the loaded LiDAR data
-            // System.out.println("\n******LiDAR Data: ");
-            // for (StampedCloudPoints stampedCloudPoints : lidarData) {
-            //     System.out.println(stampedCloudPoints);
-            // }
-            System.out.println("******");
             reader.close();
             return lidarData;
         } catch (IOException e) {
@@ -343,14 +299,6 @@ public class GurionRockRunner {
                 // Add the list to the map with the camera key
                 cameraDataMap.put(cameraKey, stampedDetectedObjectsList);
             }
-            System.out.println("\n******Camera Data: ");
-            for (Map.Entry<String, List<StampedDetectedObjects>> entry : cameraDataMap.entrySet()) {
-                System.out.println("Camera Key: " + entry.getKey());
-                for (StampedDetectedObjects stampedDetectedObjects : entry.getValue()) {
-                    System.out.println(stampedDetectedObjects);
-                }
-            }
-            System.out.println("******\n");
         } catch (IOException e) {
             System.err.println("Error reading the JSON file: " + e.getMessage());
         } catch (JsonSyntaxException e) {

@@ -33,7 +33,6 @@ public class ErrorOutput {
     statistics.setLandmarks(fusion.getLandmarks());
     statistics.setNumTrackedObjects(messageBus.getNumTrackedObjects());
     statistics.setNumDetectedObjects(messageBus.getNumDetectedObjects());
-  System.out.println("ERROR OUTPUT GENERATING OUTPUT");
     Gson gson = new GsonBuilder()
     .setPrettyPrinting()
                 .create();
@@ -89,7 +88,6 @@ public class ErrorOutput {
     this.lastLiDarWorkerTrackersFrame.put(id, lastLiDarWorkerTrackersFrame);
     this.lastLiDarWorkerTrackersFrame.get(id).setCloudPoints(cloudPoint);
   }
-  System.out.println("ERROR OUTPUT SET LAST LIDAR WORKER TRACKERS FRAME" + lastLiDarWorkerTrackersFrame);
 }
 public void setSystemRuntime(int systemRuntime) {
   statistics.setSystemRuntime(systemRuntime);

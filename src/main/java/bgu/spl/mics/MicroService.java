@@ -169,7 +169,6 @@ public abstract class MicroService implements Runnable {
     @Override
     public final void run() {
         initialize();
-        System.err.println("thread is initialized!!!!!!!!!" + name);
         while (!terminated) {
             try {
                 Message m = messageBus.awaitMessage(this);

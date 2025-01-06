@@ -43,7 +43,6 @@ public class CameraService extends MicroService {
     @Override
     protected void initialize() {
         objects=camera.getstaStampedDetectedObjects();
-       System.out.println("CameraService started");
 
        subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
            lasttime = time;
@@ -79,17 +78,15 @@ public class CameraService extends MicroService {
        });
 
        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
-        System.out.println(getName()+" detected "+brod.getSenderName()+"terminated");
         terminate();
        });
 
        subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast brod) -> {
-        System.out.println(getName() + "  detected  " + brod.getSenderName() + "crashed");
 
         ErrorOutput output = ErrorOutput.getInstance();
 
         output.setError(brod.getSenderName());
-        output.setFaultySensor(getName());
+        // output.setFaultySensor(getName());
         terminate();
      });
     }

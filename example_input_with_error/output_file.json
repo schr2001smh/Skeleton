@@ -161,8 +161,8 @@
   "statistics": {
     "systemRuntime": 14,
     "numDetectedObjects": 9,
-    "numTrackedObjects": 7,
-    "numLandmarks": 5,
+    "numTrackedObjects": 9,
+    "numLandmarks": 7,
     "landMarks": [
       {
         "id": "Wall_1",
@@ -225,6 +225,34 @@
           {
             "x": -3.3107834994339926,
             "y": -0.9851684985707769
+          }
+        ]
+      },
+      {
+        "id": "Circular_Base_1",
+        "description": "Circular Base",
+        "coordinates": [
+          {
+            "x": -3.0700931448713598,
+            "y": 1.7225611400047793
+          },
+          {
+            "x": -3.2658066359547044,
+            "y": 1.86641739293794
+          }
+        ]
+      },
+      {
+        "id": "Door",
+        "description": "Door",
+        "coordinates": [
+          {
+            "x": -2.9133326443297216,
+            "y": -1.1554635415960681
+          },
+          {
+            "x": -2.742786062832302,
+            "y": -1.4731329665326585
           }
         ]
       },

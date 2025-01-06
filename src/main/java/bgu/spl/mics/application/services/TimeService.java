@@ -43,9 +43,7 @@ public class TimeService extends MicroService {
      */
     @Override
     protected void initialize() {
-        System.out.println("TimeService started:  ticktime= "+ TickTime + " duration =" + Duration);
         subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
-            System.out.println("time service see that services online" + messageBus.getServiceCounter());
         if (messageBus.getServiceCounter()<=2) {
             generateOutput();
             terminate();
@@ -58,7 +56,6 @@ public class TimeService extends MicroService {
         outPrintError.setSystemRuntime(StartTime-2);
         outPrintError.generateOutputJson();
         
-        System.out.println("TIME SERVICE CALLED ERROR OUTPUT SHOULD WORK");
            terminate=true;
             terminate();
 
@@ -66,8 +63,7 @@ public class TimeService extends MicroService {
 
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
             if (!terminate) {
-                sendBroadcast(new TickBroadcast(StartTime));
-                System.out.println(StartTime);
+                sendBroadcast(new TickBroadcast(StartTime, TickTime));
                 StartTime=StartTime+TickTime;
                 try {
                     Thread.sleep(TickTime * 1000); // 
@@ -81,7 +77,7 @@ public class TimeService extends MicroService {
             }
        });
 
-       sendBroadcast(new TickBroadcast(0));
+       sendBroadcast(new TickBroadcast(0,TickTime));
     }
 
     public void setFilePath(String filepath){
@@ -89,12 +85,10 @@ public class TimeService extends MicroService {
     }
     
     private void generateOutput() {
-        System.out.println("TIME SERVICE: Generating output");
         Output output = new Output();
         // Set the necessary fields for the output instance
         output.setSystemRuntime(StartTime -1 );
         FusionSlam fusion = FusionSlam.getInstance();
-        System.out.println("fusion: " + fusion.getLandmarks());
         output.setNumLandmarks(fusion.getLandmarks().size());
         output.setLandmarks(fusion.getLandmarks().toArray());
         output.setNumTrackedObjects(messageBus.getNumTrackedObjects());

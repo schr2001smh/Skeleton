@@ -44,7 +44,6 @@ public class FusionSlamService extends MicroService {
      */
     @Override
     protected void initialize() {
-        System.out.println("FusionSlamService started");
 
        subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
           this.tick = brod.getTick();
@@ -52,12 +51,10 @@ public class FusionSlamService extends MicroService {
        });
 
        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
-        System.out.println(getName()+" detected "+brod.getSenderName()+"terminated");
         terminate();
        });
 
        subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast brod) -> {
-        System.out.println(getName() + "  detected  " + brod.getSenderName() + "crashed");
         terminate();
      });
 
@@ -65,7 +62,6 @@ public class FusionSlamService extends MicroService {
         List<TrackedObject> objects = event.getTrackedObjectsEvent();
        
         for (TrackedObject obj : objects) {
-            System.out.println(obj.getId());
             // Transform the cloud points to the charging station's coordinate system using the current pose
             obj.transformToCoordinateSystem(fusionSlam.getCurrentPose( obj.getTime() - event.getFrequency() ));
             // Check if the object is new or previously detected

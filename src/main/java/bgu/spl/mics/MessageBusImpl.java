@@ -121,7 +121,6 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public synchronized void register(MicroService m) {
 		servicecounter++;
-		System.out.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO " + servicecounter);
 		if (!microserviceMap.containsKey(m))
 			microserviceMap.put(m, new ArrayList<Message>());
 	}
@@ -129,7 +128,6 @@ public class MessageBusImpl implements MessageBus {
 	@Override
 	public synchronized void unregister(MicroService m) {
 		servicecounter--;
-		System.out.println("OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO " + servicecounter);
 		eventMap.values().forEach(l -> l.remove(m));
 		broadcastMap.values().forEach(l -> l.remove(m));
 		microserviceMap.remove(m);
