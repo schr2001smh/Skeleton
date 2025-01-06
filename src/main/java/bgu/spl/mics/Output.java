@@ -20,6 +20,7 @@ public class Output {
     private Object[] landmarks;
 
     public void generateOutputJson() {
+
         Gson gson = new GsonBuilder()
                     .serializeNulls()
                     .setExclusionStrategies(new ExclusionStrategy() {
@@ -34,6 +35,7 @@ public class Output {
                             return false;
                         }
                     })
+                    .setPrettyPrinting()
                     .create();
     String path = OutputHolder.filePath.substring(0, OutputHolder.filePath.lastIndexOf('\\'));
     try (FileWriter writer = new FileWriter(path + "\\output_file.json")) {

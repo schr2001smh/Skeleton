@@ -2,8 +2,8 @@ package bgu.spl.mics;
 import bgu.spl.mics.application.objects.Pose;
 
 public class PoseData {
+  public int time;
     public Pose pose;
-    public int time;
 
     public PoseData(int time, Pose pose) {
         this.time = time;

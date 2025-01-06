@@ -21,7 +21,14 @@ public class StampedDetectedObjects {
         this.detectedObjects = detectedObjects;
     }
     
-    
+    public boolean isContainingError(){
+        for (DetectedObject detectedObject : detectedObjects) {
+            if (detectedObject.getId().equals("ERROR")) {
+                return true;
+            }
+        }
+        return false;
+    }
     public void addDetectedObject(DetectedObject detectedObject) {
         detectedObjects.add(detectedObject);
     }

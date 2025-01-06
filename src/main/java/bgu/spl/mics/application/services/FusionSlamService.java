@@ -64,8 +64,8 @@ public class FusionSlamService extends MicroService {
      subscribeEvent(TrackedObjectsEvent.class, (TrackedObjectsEvent event) -> {
         List<TrackedObject> objects = event.getTrackedObjectsEvent();
        
-
         for (TrackedObject obj : objects) {
+            System.out.println(obj.getId());
             // Transform the cloud points to the charging station's coordinate system using the current pose
             obj.transformToCoordinateSystem(fusionSlam.getCurrentPose( obj.getTime() - event.getFrequency() ));
             // Check if the object is new or previously detected

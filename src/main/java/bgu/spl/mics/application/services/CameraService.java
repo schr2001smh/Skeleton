@@ -50,7 +50,6 @@ public class CameraService extends MicroService {
            this.time = brod.getTick();
 
           List<StampedDetectedObjects> list = camera.objectsDuringTime(lasttime, time);
-
             if (!list.isEmpty()&& lasttime>=0) {
                 try {
                     Thread.sleep(camera.getFrequency() * 1000);
@@ -58,9 +57,19 @@ public class CameraService extends MicroService {
                     e.printStackTrace();
                 }
                 for (StampedDetectedObjects obj : list) {
-                    sendEvent(new DetectObjectsEvent(obj));  
-                    ErrorOutput output = ErrorOutput.getInstance();
-                    output.setCameraFrame(getName(), obj);
+                    if (obj.isContainingError()) {
+                        ErrorOutput output = ErrorOutput.getInstance();
+                        output.setError(obj.getDetectedObjects().getFirst().getDescription());
+                        output.setFaultySensor(getName());
+                        sendBroadcast(new CrashedBroadcast(this.getName()));
+                        terminate();
+                        
+                    }
+                    else{
+                        sendEvent(new DetectObjectsEvent(obj));  
+                        ErrorOutput output = ErrorOutput.getInstance();
+                        output.setCameraFrame(getName(), obj);
+                    }
                 }
             }
             if (list.isEmpty()&& camera.objectsDuringTime(lasttime, time+50).isEmpty()) {
@@ -81,9 +90,6 @@ public class CameraService extends MicroService {
 
         output.setError(brod.getSenderName());
         output.setFaultySensor(getName());
-
-        output.generateOutputJson();
-
         terminate();
      });
     }

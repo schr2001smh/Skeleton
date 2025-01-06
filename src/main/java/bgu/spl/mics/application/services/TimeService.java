@@ -1,4 +1,5 @@
 package bgu.spl.mics.application.services;
+import bgu.spl.mics.ErrorOutput;
 import bgu.spl.mics.MessageBusImpl;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
@@ -53,23 +54,16 @@ public class TimeService extends MicroService {
 
        });
        subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast brod) -> {
-         generateOutput();
+        ErrorOutput outPrintError = ErrorOutput.getInstance();
+        outPrintError.setSystemRuntime(StartTime-2);
+        outPrintError.generateOutputJson();
+        
+        System.out.println("TIME SERVICE CALLED ERROR OUTPUT SHOULD WORK");
            terminate=true;
             terminate();
 
      });
 
-        // while (StartTime < Duration && !terminate) {
-        //      sendBroadcast(new TickBroadcast(StartTime));
-        //      System.out.println(StartTime);
-        //      StartTime=StartTime+TickTime;
-        //      try {
-        //          Thread.sleep(TickTime * 1000); // 
-        //      } catch (InterruptedException e) {
-        //          e.printStackTrace();
-        //      }
-        // }
-        
         subscribeBroadcast(TickBroadcast.class, (TickBroadcast brod) -> {
             if (!terminate) {
                 sendBroadcast(new TickBroadcast(StartTime));
@@ -95,6 +89,7 @@ public class TimeService extends MicroService {
     }
     
     private void generateOutput() {
+        System.out.println("TIME SERVICE: Generating output");
         Output output = new Output();
         // Set the necessary fields for the output instance
         output.setSystemRuntime(StartTime -1 );

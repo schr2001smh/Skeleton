@@ -34,6 +34,7 @@ public class LiDarService extends MicroService {
     private int time;
     private int lasttime;
     private HashMap<Integer, List<TrackedObject>> trackedMap = new HashMap<>();
+    private List<StampedCloudPoints> lidardata= new ArrayList<>();
 
     /**
      * Constructor for LiDarService.
@@ -47,6 +48,9 @@ public class LiDarService extends MicroService {
 
     public void sendEvent(List<TrackedObjectsEvent> points){
         sendEvent(points);
+    }
+    public void setLidarData(List<StampedCloudPoints> lidardata){
+        this.lidardata=lidardata;
     }
 
     /**
@@ -66,7 +70,6 @@ public class LiDarService extends MicroService {
             for(int i=0;i<this.time;i++)
             {
                 if (trackedMap.containsKey(i)) {
-                 //sendEvent(new TrackedObjectsEvent(trackedMap.get(i),LiDarWorkerTracker.getFrequency()));
                     trackedMap.remove(i);
                 }
             }
@@ -85,14 +88,16 @@ public class LiDarService extends MicroService {
     
 
      subscribeEvent(DetectObjectsEvent.class, (DetectObjectsEvent e) -> {
-
+        if (lidardata.get( e.getStampedDetectObjects().getTime()).getId().equals("ERROR")) {
+            System.out.println("GGEZ");
+            
+        }
         StampedDetectedObjects objects = e.getStampedDetectObjects();
         int time = objects.getTime();
         List<DetectedObject> detectedObjects = objects.getDetectedObjects();
 
         for (DetectedObject detectedObject : detectedObjects) {
            List<List<Double>> cloudPointsList = dataBase.getcloudpoints(time,lasttime,detectedObject.getId());
-
            List<TrackedObject> trackedObjectsList = new ArrayList<>();
 
            if(cloudPointsList!=null)
@@ -104,15 +109,13 @@ public class LiDarService extends MicroService {
                 }  
                 trackedObjects = new TrackedObject(detectedObject.getId(), time, detectedObject.getDescription(), cloudPointObjects);
                 if(!trackedObjectsList.contains(trackedObjects)) {
-                        
                     trackedObjectsList.add(trackedObjects);
                 } 
+                ErrorOutput output = ErrorOutput.getInstance();
+                output.setLastLiDarWorkerTrackersFrame(getName(), new StampedCloudPoints(getName(), time),cloudPointsList);
             }
-            
             trackedMap.put(time + LiDarWorkerTracker.getFrequency(), trackedObjectsList);
-          sendEvent(new TrackedObjectsEvent(trackedObjectsList,LiDarWorkerTracker.getFrequency()));
-           ErrorOutput output = ErrorOutput.getInstance();
-            output.setLastLiDarWorkerTrackersFrame(getName(), new StampedCloudPoints(getName(), time));
+            sendEvent(new TrackedObjectsEvent(trackedObjectsList,LiDarWorkerTracker.getFrequency())); 
             System.out.println("TESTINTTTTT");
             System.out.println(new StampedCloudPoints(getName(), time));
         

@@ -65,7 +65,7 @@ public class GurionRockRunner {
 
         if (args.length == 0) {
             args = new String[1];
-            args[0] = "example input\\configuration_file.json";  // change before submission!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            args[0] = "example_input_with_error\\configuration_file.json";  // change before submission!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         }
         String configFilePath = args[0];
         try {
@@ -182,9 +182,10 @@ public class GurionRockRunner {
             List<LiDarWorkers> lidarWorkers = config.getLidarConfigurations();
             for (LiDarWorkers liDarWorker : lidarWorkers) {
                 LiDarWorkerTracker liDarWorkerTracker = new LiDarWorkerTracker(liDarWorker.id, liDarWorker.frequency);
-
                 liDarWorkerTrackers.add(liDarWorkerTracker);
-                liDarServices.add(new LiDarService(liDarWorkerTracker));
+                LiDarService lidarservice = new LiDarService(liDarWorkerTracker);
+                lidarservice.setLidarData(lidarData);
+                liDarServices.add(lidarservice);
             }
 
             //create camera services
