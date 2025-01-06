@@ -95,48 +95,35 @@ public class LiDarService extends MicroService {
      });
     
 
-     subscribeEvent(DetectObjectsEvent.class, (DetectObjectsEvent e) -> {
-        int time = e.getStampedDetectObjects().getTime();
-    // if (ticktime!=0 && !lidardata.get(time/ticktime-2).getId().equals("ERROR")) {
-        StampedDetectedObjects objects = e.getStampedDetectObjects();
-        List<DetectedObject> detectedObjects = objects.getDetectedObjects();
-        for (DetectedObject detectedObject : detectedObjects) {
-           List<List<Double>> cloudPointsList = dataBase.getcloudpoints(time,lasttime,detectedObject.getId());
-           List<TrackedObject> trackedObjectsList = new ArrayList<>();
+        subscribeEvent(DetectObjectsEvent.class, (DetectObjectsEvent e) -> {
+            int time = e.getStampedDetectObjects().getTime();
+            StampedDetectedObjects objects = e.getStampedDetectObjects();
+            List<DetectedObject> detectedObjects = objects.getDetectedObjects();
+            for (DetectedObject detectedObject : detectedObjects) {
+                List<List<Double>> cloudPointsList = dataBase.getcloudpoints(time,lasttime,detectedObject.getId());
+                List<TrackedObject> trackedObjectsList = new ArrayList<>();
 
-           if(cloudPointsList!=null)
-           {
-            TrackedObject trackedObjects = new TrackedObject(getName(), time, getName(), null);
-            List<CloudPoint> cloudPointObjects = new ArrayList<>();
-                for (List<Double> cloudPoints : cloudPointsList) {
-                    cloudPointObjects.add(new CloudPoint(cloudPoints.get(0), cloudPoints.get(1)));   
-                }  
-                trackedObjects = new TrackedObject(detectedObject.getId(), time, detectedObject.getDescription(), cloudPointObjects);
-                if(!trackedObjectsList.contains(trackedObjects)) {
-                    trackedObjectsList.add(trackedObjects);
-                } 
-                ErrorOutput output = ErrorOutput.getInstance();
-                output.setLastLiDarWorkerTrackersFrame(getName(), new StampedCloudPoints(getName(), time),cloudPointsList);
+                if(cloudPointsList!=null)
+                {
+                    prepareData(cloudPointsList, detectedObject, trackedObjectsList);
+                    ErrorOutput output = ErrorOutput.getInstance();
+                    output.setLastLiDarWorkerTrackersFrame(getName(), new StampedCloudPoints(getName(), time),cloudPointsList);
+                }
+                trackedMap.put(time + LiDarWorkerTracker.getFrequency(), trackedObjectsList);
+                sendEvent(new TrackedObjectsEvent(trackedObjectsList,LiDarWorkerTracker.getFrequency())); 
             }
-            trackedMap.put(time + LiDarWorkerTracker.getFrequency(), trackedObjectsList);
-            sendEvent(new TrackedObjectsEvent(trackedObjectsList,LiDarWorkerTracker.getFrequency())); 
-          }
-    //    }
-    //    else
-    //    {
+        });
+    }
 
-    //     ErrorOutput output = ErrorOutput.getInstance();
-    //     output.setError(lidardata.get( e.getStampedDetectObjects().getTime()).getId());
-    //     output.setFaultySensor(this.getName());
-    //     sendBroadcast(new CrashedBroadcast(this.getName()));
-    //     terminate();
-    //    }
-     });
-    //     public TrackedObject(String id, int time, String description,List<CloudPoint> coordinates) {
-    //     this.id = id;
-    //     this.time = time;
-    //     this.description = description;
-    //     this.coordinates = coordinates;
-    // }
+    public void prepareData(List<List<Double>> cloudPointsList, DetectedObject detectedObject, List<TrackedObject> trackedObjectsList) {
+        TrackedObject trackedObjects = new TrackedObject(getName(), time, getName(), null);
+        List<CloudPoint> cloudPointObjects = new ArrayList<>();
+        for (List<Double> cloudPoints : cloudPointsList) {
+            cloudPointObjects.add(new CloudPoint(cloudPoints.get(0), cloudPoints.get(1)));   
+        }  
+        trackedObjects = new TrackedObject(detectedObject.getId(), time, detectedObject.getDescription(), cloudPointObjects);
+        if(!trackedObjectsList.contains(trackedObjects)) {
+            trackedObjectsList.add(trackedObjects);
+        } 
     }
 }
