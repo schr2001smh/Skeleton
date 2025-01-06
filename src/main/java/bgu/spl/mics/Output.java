@@ -19,7 +19,7 @@ public class Output {
     private int numLandmarks;
     private Object[] landmarks;
 
-    public void generateOutputJson(String filePath) {
+    public void generateOutputJson() {
         Gson gson = new GsonBuilder()
                     .serializeNulls()
                     .setExclusionStrategies(new ExclusionStrategy() {
@@ -35,7 +35,8 @@ public class Output {
                         }
                     })
                     .create();
-    try (FileWriter writer = new FileWriter(filePath + "\\output_file.json")) {
+    String path = OutputHolder.filePath.substring(0, OutputHolder.filePath.lastIndexOf('\\'));
+    try (FileWriter writer = new FileWriter(path + "\\output_file.json")) {
         gson.toJson(this, writer);
     } catch (IOException e) {
         e.printStackTrace();
@@ -43,6 +44,7 @@ public class Output {
 }
     private static class OutputHolder {
         private static final Output instance = new Output();
+        private static String filePath;
     }
 
     public static Output getInstance() {
@@ -67,5 +69,9 @@ public class Output {
 
     public void setNumTrackedObjects(int numTrackedObjects) {
         this.numTrackedObjects = numTrackedObjects;
+    }
+
+    public void setFilePath(String filePath) {
+        OutputHolder.filePath = filePath;
     }
 }

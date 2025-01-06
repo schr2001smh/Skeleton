@@ -14,6 +14,9 @@ public class PoseData {
       public void setPose(Pose pose) {
         this.pose = pose;
       }
+      public int getTime() {
+        return time;
+      }
       @Override
       public String toString() {
         return "time=" + time +"\n"+

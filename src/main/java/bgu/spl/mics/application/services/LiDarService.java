@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 
+import bgu.spl.mics.ErrorOutput;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
@@ -15,6 +16,7 @@ import bgu.spl.mics.application.objects.CloudPoint;
 import bgu.spl.mics.application.objects.DetectedObject;
 import bgu.spl.mics.application.objects.LiDarDataBase;
 import bgu.spl.mics.application.objects.LiDarWorkerTracker;
+import bgu.spl.mics.application.objects.StampedCloudPoints;
 import bgu.spl.mics.application.objects.StampedDetectedObjects;
 import bgu.spl.mics.application.objects.TrackedObject;
 
@@ -97,7 +99,6 @@ public class LiDarService extends MicroService {
            {
             TrackedObject trackedObjects = new TrackedObject(getName(), time, getName(), null);
             List<CloudPoint> cloudPointObjects = new ArrayList<>();
-
                 for (List<Double> cloudPoints : cloudPointsList) {
                     cloudPointObjects.add(new CloudPoint(cloudPoints.get(0), cloudPoints.get(1)));   
                 }  
@@ -106,11 +107,14 @@ public class LiDarService extends MicroService {
                         
                     trackedObjectsList.add(trackedObjects);
                 } 
-
             }
             
             trackedMap.put(time + LiDarWorkerTracker.getFrequency(), trackedObjectsList);
           sendEvent(new TrackedObjectsEvent(trackedObjectsList,LiDarWorkerTracker.getFrequency()));
+           ErrorOutput output = ErrorOutput.getInstance();
+            output.setLastLiDarWorkerTrackersFrame(getName(), new StampedCloudPoints(getName(), time));
+            System.out.println("TESTINTTTTT");
+            System.out.println(new StampedCloudPoints(getName(), time));
         
            // System.out.println(trackedObjectsList+"Meaning it sends good coordinates");
 

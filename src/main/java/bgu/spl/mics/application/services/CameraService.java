@@ -1,6 +1,7 @@
 package bgu.spl.mics.application.services;
 import java.util.List;
 
+import bgu.spl.mics.ErrorOutput;
 import bgu.spl.mics.MicroService;
 import bgu.spl.mics.application.messages.CrashedBroadcast;
 import bgu.spl.mics.application.messages.DetectObjectsEvent;
@@ -21,7 +22,6 @@ public class CameraService extends MicroService {
     private int time;
     private int lasttime;
     private List<StampedDetectedObjects> objects;
-    
     /**
      * Constructor for CameraService.
      *
@@ -58,16 +58,15 @@ public class CameraService extends MicroService {
                     e.printStackTrace();
                 }
                 for (StampedDetectedObjects obj : list) {
-                    sendEvent(new DetectObjectsEvent(obj));
+                    sendEvent(new DetectObjectsEvent(obj));  
+                    ErrorOutput output = ErrorOutput.getInstance();
+                    output.setCameraFrame(getName(), obj);
                 }
             }
             if (list.isEmpty()&& camera.objectsDuringTime(lasttime, time+50).isEmpty()) {
                 sendBroadcast(new TerminatedBroadcast(this.getName()));
                 terminate();
             }
-            
-            
-
        });
 
        subscribeBroadcast(TerminatedBroadcast.class, (TerminatedBroadcast brod) -> {
@@ -77,6 +76,14 @@ public class CameraService extends MicroService {
 
        subscribeBroadcast(CrashedBroadcast.class, (CrashedBroadcast brod) -> {
         System.out.println(getName() + "  detected  " + brod.getSenderName() + "crashed");
+
+        ErrorOutput output = ErrorOutput.getInstance();
+
+        output.setError(brod.getSenderName());
+        output.setFaultySensor(getName());
+
+        output.generateOutputJson();
+
         terminate();
      });
     }

@@ -106,6 +106,6 @@ public class TimeService extends MicroService {
         output.setNumDetectedObjects(messageBus.getNumDetectedObjects());
         
         // ...set other fields as needed...
-        output.generateOutputJson(filePath.substring(0, filePath.lastIndexOf('\\')));
+        output.generateOutputJson();
     }
 }

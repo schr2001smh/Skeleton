@@ -21,8 +21,10 @@ import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
 import bgu.spl.mics.Configuration;
+import bgu.spl.mics.ErrorOutput;
 import bgu.spl.mics.LiDarWorkers;
 import bgu.spl.mics.MicroService;
+import bgu.spl.mics.Output;
 import bgu.spl.mics.PoseData;
 import bgu.spl.mics.application.objects.Camera;
 import bgu.spl.mics.application.objects.DetectedObject;
@@ -103,7 +105,13 @@ public class GurionRockRunner {
                 poseData.get(i).setPose(poses.get(i));
             }
             System.out.println(poseData);
-            
+            ErrorOutput errorOutput = ErrorOutput.getInstance();
+            errorOutput.setPoses(poseData);
+            errorOutput.setFilePath(configFilePath);
+
+            Output output = Output.getInstance();
+            output.setFilePath(configFilePath);
+
             System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&\n" + poses);
             String lidarJsonFilePath = getFullJsonFilePath(configFilePath, config.getLidars_data_path());
             List<StampedCloudPoints> lidarData = loadLidarData(lidarJsonFilePath);
